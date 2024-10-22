@@ -1,19 +1,29 @@
 {
-  "name": "launcher-plutonia",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "devDependencies": {
-    "electron": "^33.0.1",
-    "nodemon": "^3.1.7"
-  },
-  "dependencies": {
-    "minecraft-java-core": "^3.11.2"
-  }
+    "name": "Plutonia",
+    "version": "1.0.0",
+    "main": "src/app.js",
+    "scripts": {
+        "start": "cross-env-shell NODE_ENV=dev electron .",
+        "dev": "cross-env-shell DEV_TOOL=open nodemon --exec npm start",
+        "build": "node build.js --obf=true --build=platform",
+        "icon": "node build.js --icon=https://luuxis.fr/icon.png"
+    },
+    "dependencies": {
+        "electron-updater": "^6.3.9",
+        "minecraft-java-core": "^3.11.2",
+        "node-fetch": "^2.7.0"
+    },
+    "devDependencies": {
+        "cross-env-shell": "^7.0.3",
+        "electron": "^33.0.1",
+        "electron-builder": "^25.1.8",
+        "javascript-obfuscator": "^4.1.1",
+        "jimp": "^1.6.0",
+        "nodemon": "^3.1.7",
+        "png2icons": "^2.0.1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Plutonia-Games/Launcher-Electron.git"
+    }
 }

@@ -1,0 +1,7 @@
+/* Poppins */
+
+@font-face {
+    font-family: 'LemonMilk';
+    font-style: bold;
+    src: url('../fonts/lemonmilk.otf') format('opentype');
+}
