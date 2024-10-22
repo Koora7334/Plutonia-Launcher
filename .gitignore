@@ -6,4 +6,3 @@ build
 Minecraft
 *.json*
 .DS_Store
-minecraft-java-core/test/Minecraft

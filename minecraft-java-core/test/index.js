@@ -1,29 +1,12 @@
-const { Microsoft, Mojang, Launch } = require('../build/Index');
+const { Plutonia, Launch } = require('../build/Index');
 const launch = new Launch();
-const fs = require('fs');
 
-let client_id = '13f589e1-e2fc-443e-a68a-63b0092b8eeb'
-let mc
+const { username, password } = require('./config.json');
 
 (async () => {
-    if (!fs.existsSync('./account.json')) {
-        mc = await new Microsoft(client_id).getAuth();
-        fs.writeFileSync('./account.json', JSON.stringify(mc, null, 4));
-    } else {
-        mc = JSON.parse(fs.readFileSync('./account.json'));
-        if (!mc.refresh_token) {
-            mc = await new Microsoft(client_id).getAuth();
-            fs.writeFileSync('./account.json', JSON.stringify(mc, null, 4));
-        } else {
-            mc = await new Microsoft(client_id).refresh(mc);
-            if (mc.error) mc = await new Microsoft(client_id).getAuth();
-            fs.writeFileSync('./account.json', JSON.stringify(mc, null, 4));
-        }
-    }
-
     let opt = {
-        url: 'https://assets.plutonia.games',
-        authenticator: await Mojang.login('Luuxis'),
+        url: 'https://plutonia.luuxis.fr',
+        authenticator: await Plutonia.login(username, password),
         timeout: 10000,
         instance: 'test',
         path: './Minecraft',
@@ -31,13 +14,6 @@ let mc
         detached: false,
         intelEnabledMac: true,
         downloadFileMultiple: 30,
-
-        loader: {
-            type: 'forge',
-            build: '1.16.3-34.1.42',
-            enable: false,
-            path: './',
-        },
 
         mcp: 'minecraft.jar',
 
