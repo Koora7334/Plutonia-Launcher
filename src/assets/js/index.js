@@ -16,9 +16,14 @@ class Splash {
         this.splashAuthor = document.querySelector(".splash-author");
         this.message = document.querySelector(".message");
         this.progress = document.querySelector(".progress");
+
         document.addEventListener('DOMContentLoaded', async () => {
             document.body.className =  'dark global' ;
-            if (process.platform == 'win32') ipcRenderer.send('update-window-progress-load')
+
+            if (process.platform == 'win32') {
+                ipcRenderer.send('update-window-progress-load')
+            }
+
             this.startAnimation()
         });
     }
@@ -41,7 +46,7 @@ class Splash {
         this.setStatus(`Recherche de mise à jour...`);
 
         ipcRenderer.invoke('update-app').then().catch(err => {
-            return this.shutdown(`erreur lors de la recherche de mise à jour :<br>${err.message}`);
+            return this.shutdown(`Erreur lors de la recherche de mise à jour :<br>${err.message}`);
         });
 
         ipcRenderer.on('updateAvailable', () => {
@@ -63,7 +68,7 @@ class Splash {
         })
 
         ipcRenderer.on('update-not-available', () => {
-            console.error("Mise à jour non disponible");
+            console.error("Mise à jour non disponible.");
             this.maintenanceCheck();
         })
     }
@@ -106,10 +111,11 @@ class Splash {
     }
 
     shutdown(text) {
-        this.setStatus(`${text}<br>Arrêt dans 5s`);
+        this.setStatus(`${text}<br>Arrêt dans 5 secondes...`);
+
         let i = 4;
         setInterval(() => {
-            this.setStatus(`${text}<br>Arrêt dans ${i--}s`);
+            this.setStatus(`${text}<br>Arrêt dans ${i--} secondes...`);
             if (i < 0) ipcRenderer.send('update-window-close');
         }, 1000);
     }
@@ -137,4 +143,5 @@ document.addEventListener("keydown", (e) => {
         ipcRenderer.send("update-window-dev-tools");
     }
 })
+
 new Splash();
