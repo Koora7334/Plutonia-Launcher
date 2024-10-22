@@ -1,4 +1,9 @@
 node_modules
 app
 data
-
+dist
+build
+Minecraft
+*.json*
+.DS_Store
+minecraft-java-core/test/Minecraft

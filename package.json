@@ -5,12 +5,13 @@
     "scripts": {
         "start": "cross-env-shell NODE_ENV=dev electron .",
         "dev": "cross-env-shell DEV_TOOL=open nodemon --exec npm start",
-        "build": "node build.js --obf=true --build=platform",
+        "build": "npm run buildLIB && node build.js --obf=true --build=platform",
+        "buildLIB": "cd ./minecraft-java-core && npm run build",
         "icon": "node build.js --icon=https://img.plutonia-mc.fr/iconLauncher.png"
     },
     "dependencies": {
         "electron-updater": "^6.3.9",
-        "minecraft-java-core": "^3.11.2",
+        "minecraft-java-core": "file:./minecraft-java-core",
         "node-fetch": "^2.7.0"
     },
     "devDependencies": {
