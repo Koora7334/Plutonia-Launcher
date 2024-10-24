@@ -18,12 +18,9 @@ class Splash {
         this.progress = document.querySelector(".progress");
 
         document.addEventListener('DOMContentLoaded', async () => {
-            document.body.className =  'dark global' ;
-
             if (process.platform == 'win32') {
                 ipcRenderer.send('update-window-progress-load')
             }
-
             this.startAnimation()
         });
     }
