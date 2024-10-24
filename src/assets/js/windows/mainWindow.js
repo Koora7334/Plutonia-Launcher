@@ -24,14 +24,13 @@ function createWindow() {
     destroyWindow();
     mainWindow = new BrowserWindow({
         title: pkg.preductname,
-        width: 1280,
-        height: 720,
-        minWidth: 980,
-        minHeight: 552,
-        resizable: true,
+        width: 761,
+        height: 824,
+        resizable: false,
         icon: `./src/assets/images/icon.${os.platform() === "win32" ? "ico" : "png"}`,
-        frame: os.platform() !== 'win32',
+        frame: false,
         show: false,
+        transparent: true,
         webPreferences: {
             contextIsolation: false,
             nodeIntegration: true
