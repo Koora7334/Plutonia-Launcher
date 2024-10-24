@@ -29,7 +29,7 @@ async function login(username: string, password?: string, tfa?: string) {
     if (message.status == 400) return { A2F: true };
 
     return {
-        access_token: message.uuid,
+        access_token: message.session,
         client_token: message.uuid,
         uuid: message.uuid,
         name: username,
