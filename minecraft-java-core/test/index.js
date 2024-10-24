@@ -17,6 +17,8 @@ const { username, password } = require('./config.json');
 
         mcp: 'minecraft.jar',
 
+        libs: 'libs',
+
 
         verify: false,
         ignored: [

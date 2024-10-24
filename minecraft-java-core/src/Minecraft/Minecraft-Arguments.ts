@@ -6,10 +6,6 @@
 import fs from 'fs';
 import os from 'os'
 
-import { getPathLibraries, isold } from '../utils/Index.js';
-
-let MojangLib = { win32: "windows", darwin: "osx", linux: "linux" };
-
 export default class MinecraftArguments {
     options: any;
     authenticator: any;
@@ -55,8 +51,8 @@ export default class MinecraftArguments {
             '${version_name}': loaderJson ? loaderJson.id : json.id,
             '${assets_index_name}': json.assetIndex.id,
             '${game_directory}': this.options.instance ? `${this.options.path}/instances/${this.options.instance}` : this.options.path,
-            '${assets_root}': isold(json) ? `${this.options.path}/resources` : `${this.options.path}/assets`,
-            '${game_assets}': isold(json) ? `${this.options.path}/resources` : `${this.options.path}/assets`,
+            '${assets_root}': `${this.options.path}/assets`,
+            '${game_assets}': `${this.options.path}/assets`,
             '${version_type}': json.type,
             '${clientid}': this.authenticator.clientId || (this.authenticator.client_token || this.authenticator.access_token)
         }
@@ -67,7 +63,7 @@ export default class MinecraftArguments {
         }
 
         if (this.options.screen) {
-            if (this.options.screen.width !== null && this.options.screen.height !== null) {
+            if (this.options.screen.width && this.options.screen.height) {
                 game.push('--width')
                 game.push(this.options.screen.width)
                 game.push('--height')
@@ -122,58 +118,22 @@ export default class MinecraftArguments {
     }
 
     async GetClassPath(json: any, loaderJson: any) {
-        let librariesList: string[] = []
-        let classPath: string[] = []
-        let libraries: any = json.libraries;
+        let librariesList: string[] = [];
 
-        if (loaderJson?.libraries) libraries = loaderJson.libraries.concat(libraries);
-        libraries = libraries.filter((library: any, index: any, self: any) => index === self.findIndex((res: any) => res.name === library.name));
 
-        for (let lib of libraries) {
-            if (lib.loader && lib.name.startsWith('org.apache.logging.log4j:log4j-slf4j2-impl')) continue;
-
-            if (lib.natives) {
-                let native = lib.natives[MojangLib[process.platform]];
-                if (!native) native = lib.natives[process.platform];
-                if (!native) continue;
-            } else {
-                if (lib.rules && lib.rules[0].os) {
-                    if (lib.rules[0].os.name !== MojangLib[process.platform]) continue;
-                }
-            }
-
-            let path = getPathLibraries(lib.name);
-            if (lib.loader) {
-                librariesList.push(`${lib.loader}/libraries/${path.path}/${path.name}`);
-            } else {
-                librariesList.push(`${this.options.path}/libraries/${path.path}/${path.name}`);
-            }
+        let libs = fs.readdirSync(this.options.libs);
+        for (let lib of libs) {
+            librariesList.push(`${this.options.libs}/${lib}`);
         }
 
-        if (loaderJson?.isOldForge) {
-            librariesList.push(loaderJson?.jarPath);
-        } else if (this.options.mcp) {
-            librariesList.push(this.options.mcp);
-        } else {
-            librariesList.push(`${this.options.path}/versions/${json.id}/${json.id}.jar`);
-        }
-
-
-        classPath = librariesList.filter((path: string) => {
-            let lib = path.split('/').pop();
-            if (lib && !classPath.includes(lib)) {
-                classPath.push(lib);
-                return true;
-            }
-            return false;
-        });
+        librariesList.push(this.options.mcp);
 
         return {
             classpath: [
                 `-cp`,
-                classPath.join(process.platform === 'win32' ? ';' : ':'),
+                librariesList.join(process.platform === 'win32' ? ';' : ':'),
             ],
-            mainClass: loaderJson ? loaderJson.mainClass : json.mainClass
+            mainClass: json.mainClass
         }
     }
 }

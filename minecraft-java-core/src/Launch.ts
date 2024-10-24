@@ -11,7 +11,6 @@ import { spawn } from 'child_process';
 import jsonMinecraft from './Minecraft/Minecraft-Json.js';
 import librariesMinecraft from './Minecraft/Minecraft-Libraries.js';
 import assetsMinecraft from './Minecraft/Minecraft-Assets.js';
-import loaderMinecraft from './Minecraft/Minecraft-Loader.js';
 import javaMinecraft from './Minecraft/Minecraft-Java.js';
 import bundleMinecraft from './Minecraft/Minecraft-Bundle.js';
 import argumentsMinecraft from './Minecraft/Minecraft-Arguments.js';
@@ -143,6 +142,12 @@ export type LaunchOPTS = {
      */
     instance?: string,
     /**
+     * Path to libraries directory. Relative to absolute path to Minecraft's root directory (config option `path`).
+     * 
+     * Example: `'libraries'`
+     */
+    libs?: string,
+    /**
      * Should Minecraft process be independent of launcher?
      */
     detached?: boolean,
@@ -202,6 +207,7 @@ export default class Launch extends EventEmitter {
             timeout: 10000,
             path: '.Minecraft',
             version: 'latest_release',
+            libs: null,
             instance: null,
             detached: false,
             intelEnabledMac: false,
@@ -246,6 +252,11 @@ export default class Launch extends EventEmitter {
         if (this.options.mcp) {
             if (this.options.instance) this.options.mcp = `${this.options.path}/instances/${this.options.instance}/${this.options.mcp}`
             else this.options.mcp = path.resolve(`${this.options.path}/${this.options.mcp}`).replace(/\\/g, '/')
+        }
+
+        if (this.options.libs) {
+            if (this.options.instance) this.options.libs = `${this.options.path}/instances/${this.options.instance}/${this.options.libs}`
+            else this.options.libs = path.resolve(`${this.options.path}/${this.options.libs}`).replace(/\\/g, '/')
         }
 
         if (this.options.loader.type) {
