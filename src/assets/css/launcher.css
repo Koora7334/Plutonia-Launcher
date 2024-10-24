@@ -1,0 +1,103 @@
+@import url('./font.css');
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: 'LemonMilk', sans-serif;
+    background-image: url('../images/background.png');
+}
+
+.close {
+    position: absolute;
+    top: 113px;
+    left: 637px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    background-image: url('../images/elements/btn/btn_quit.png');
+
+}
+
+.close:hover {
+    background-image: url('../images/elements/btn/btn_quit_hover.png');
+}
+
+.login,
+.password {
+    position: absolute;
+    width: 417px;
+    height: 70px;
+    background-image: url('../images/elements/field/field_empty.png');
+}
+
+.login input,
+.password input {
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: center;
+    height: 100%;
+    outline: none;
+}
+
+.login {
+    top: 284px;
+    left: 179px;
+}
+
+.password {
+    top: 374px;
+    left: 179px;
+}
+
+.play {
+    position: absolute;
+    top: 550px;
+    left: 249px;
+    width: 260px;
+    height: 60px;
+    cursor: pointer;
+    background-image: url('../images/elements/btn/btn_play.png');
+}
+
+.play:hover {
+    background-image: url('../images/elements/btn/btn_play_hover.png');
+}
+
+.settings {
+    position: absolute;
+    top: 555px;
+    left: 513px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    background-image: url('../images/elements/btn/btn_settings.png');
+}
+
+.settings:hover {
+    background-image: url('../images/elements/btn/btn_settings_hover.png');
+}
+
+.text {
+    position: absolute;
+    top: 610px;
+    text-align: center;
+    width: 100%;
+}
+
+.progress {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 670px;
+    left: 154px;
+    width: 449px;
+    height: 28px;
+    color: white;
+    font-size: 12px;
+    background-image: url('../images/elements/progressbar/progressbar.png');
+}

@@ -7,7 +7,7 @@
 const { app, BrowserWindow, Menu } = require("electron");
 const path = require("path");
 const os = require("os");
-let dev = process.env.DEV_TOOL === 'open';
+let dev = process.env.NODE_ENV === 'dev';
 let updateWindow = undefined;
 
 function getWindow() {
