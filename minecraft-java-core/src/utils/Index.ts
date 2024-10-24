@@ -38,42 +38,6 @@ function isold(json: any) {
     return json.assets === 'legacy' || json.assets === 'pre-1.6'
 }
 
-function loader(type: string) {
-    if (type === 'forge') {
-        return {
-            metaData: 'https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json',
-            meta: 'https://files.minecraftforge.net/net/minecraftforge/forge/${build}/meta.json',
-            promotions: 'https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json',
-            install: 'https://maven.minecraftforge.net/net/minecraftforge/forge/${version}/forge-${version}-installer',
-            universal: 'https://maven.minecraftforge.net/net/minecraftforge/forge/${version}/forge-${version}-universal',
-            client: 'https://maven.minecraftforge.net/net/minecraftforge/forge/${version}/forge-${version}-client',
-        }
-    } else if (type === 'neoforge') {
-        return {
-            legacyMetaData: 'https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/forge',
-            metaData: 'https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge',
-            legacyInstall: 'https://maven.neoforged.net/net/neoforged/forge/${version}/forge-${version}-installer.jar',
-            install: 'https://maven.neoforged.net/net/neoforged/neoforge/${version}/neoforge-${version}-installer.jar'
-        }
-    } else if (type === 'fabric') {
-        return {
-            metaData: 'https://meta.fabricmc.net/v2/versions',
-            json: 'https://meta.fabricmc.net/v2/versions/loader/${version}/${build}/profile/json'
-        }
-    } else if (type === 'legacyfabric') {
-        return {
-            metaData: 'https://meta.legacyfabric.net/v2/versions',
-            json: 'https://meta.legacyfabric.net/v2/versions/loader/${version}/${build}/profile/json'
-        }
-    } else if (type === 'quilt') {
-        return {
-            metaData: 'https://meta.quiltmc.org/v3/versions',
-            json: 'https://meta.quiltmc.org/v3/versions/loader/${version}/${build}/profile/json'
-        }
-    }
-}
-
-
 let mirrors = [
     "https://maven.minecraftforge.net",
     "https://maven.neoforged.net/releases",
@@ -102,18 +66,6 @@ async function getFileFromArchive(jar: string, file: string = null, path: string
     });
 }
 
-async function createZIP(files: any, ignored: any = null) {
-    let zip = new admZip();
-
-    return await new Promise(resolve => {
-        for (let entry of files) {
-            if (ignored && entry.name.includes(ignored)) continue;
-            zip.addFile(entry.name, entry.data);
-        }
-        resolve(zip.toBuffer());
-    });
-}
-
 function skipLibrary(lib) {
     let Lib = { win32: "windows", darwin: "osx", linux: "linux" };
 
@@ -139,8 +91,6 @@ export {
     isold,
     getFileHash,
     mirrors,
-    loader,
     getFileFromArchive,
-    createZIP,
     skipLibrary
 };

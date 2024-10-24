@@ -269,16 +269,11 @@ export default class Launch extends EventEmitter {
         let minecraftArguments: any = await new argumentsMinecraft(this.options).GetArguments(minecraftJson, minecraftLoader);
         if (minecraftArguments.error) return this.emit('error', minecraftArguments);
 
-        let loaderArguments: any = await new loaderMinecraft(this.options).GetArguments(minecraftLoader, minecraftVersion);
-        if (loaderArguments.error) return this.emit('error', loaderArguments);
-
         let Arguments: any = [
             ...minecraftArguments.jvm,
             ...minecraftArguments.classpath,
-            ...loaderArguments.jvm,
             minecraftArguments.mainClass,
             ...minecraftArguments.game,
-            ...loaderArguments.game
         ]
 
         let java: any = this.options.java.path ? this.options.java.path : minecraftJava.path;
@@ -350,32 +345,6 @@ export default class Launch extends EventEmitter {
             await downloader.downloadFileMultiple(filesList, totsize, this.options.downloadFileMultiple, this.options.timeout);
         }
 
-        if (this.options.loader.enable === true) {
-            let loaderInstall = new loaderMinecraft(this.options)
-
-            loaderInstall.on('extract', (extract: any) => {
-                this.emit('extract', extract);
-            });
-
-            loaderInstall.on('progress', (progress: any, size: any, element: any) => {
-                this.emit('progress', progress, size, element);
-            });
-
-            loaderInstall.on('check', (progress: any, size: any, element: any) => {
-                this.emit('check', progress, size, element);
-            });
-
-            loaderInstall.on('patch', (patch: any) => {
-                this.emit('patch', patch);
-            });
-
-            let jsonLoader = await loaderInstall.GetLoader(version, this.options.java.path ? this.options.java.path : gameJava.path)
-                .then((data: any) => data)
-                .catch((err: any) => err);
-            if (jsonLoader.error) return jsonLoader;
-            loaderJson = jsonLoader;
-        }
-
         if (this.options.verify) await bundle.checkFiles([...gameLibraries, ...gameAssetsOther, ...gameAssets, ...gameJava.files]);
 
         let natives = await libraries.natives(gameLibraries);
@@ -386,7 +355,6 @@ export default class Launch extends EventEmitter {
 
         return {
             minecraftJson: json,
-            minecraftLoader: loaderJson,
             minecraftVersion: version,
             minecraftJava: gameJava
         }
