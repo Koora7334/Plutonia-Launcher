@@ -38,7 +38,7 @@ document.querySelector('.btn .play').addEventListener('click', async _ => {
         if (auth.error) {
             document.querySelector('.progress').innerText = auth.error.message;
         } else if (auth.A2F) {
-            authCode.style.display = 'block';
+            document.querySelector('.auth-code').style.display = 'block';
             document.querySelector('.progress').innerText = 'Code d\'authentification requis.';
         } else {
             startGame();
