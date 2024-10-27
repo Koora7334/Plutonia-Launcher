@@ -38,7 +38,7 @@ const { username, password } = require('./config.json');
 
         java: {
             path: null,
-            version: null,
+            version: 11,
             type: 'jre',
         },
 

@@ -66,7 +66,7 @@ class Splash {
 
         ipcRenderer.on('update-not-available', () => {
             console.error("Mise à jour non disponible.");
-            this.maintenanceCheck();
+            this.startLauncher();
         })
     }
 

@@ -1,33 +1,63 @@
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="Content-Security-Policy" content="script-src 'self';">
-        <link rel="stylesheet" href="assets/css/launcher.css">
-    </head>
-    <body>
-        <div class="close btn"></div>
 
-        <div class="form">
-            <div class="login">
-                <input type="text" placeholder="NOM D'UTILISATEUR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self';">
+    <link rel="stylesheet" href="assets/css/launcher.css">
+</head>
+
+<body>
+    <div class="close btn"></div>
+
+    <div class="form">
+        <div class="login">
+            <input type="text" placeholder="NOM D'UTILISATEUR">
+        </div>
+
+        <div class="password">
+            <input type="password" placeholder="MOT DE PASSE">
+        </div>
+
+        <div class="auth-code">
+            <input type="text" placeholder="CODE D'AUTHENTIFICATION">
+        </div>
+    </div>
+
+    <div class="btn">
+        <div class="play"></div>
+        <div class="settings"></div>
+    </div>
+
+    <div class="text">
+        Mot de passe oublié <span style='color:orange;'>ou</span> pas encore inscrit ?
+    </div>
+
+    <div class="progress">Veuillez entrer vos identifiants.</div>
+
+    <div class="box">
+        <div class="settings-box">
+            <div class="config-box">
+                <label for="ram">Ram :</label>
+                <select id="ram" class="ram-select" >
+                    <option value="1">1Go</option>
+                    <option value="2">2Go</option>
+                    <option value="4" selected>4Go</option>
+                    <option value="8">8Go</option>
+                    <option value="10">10Go</option>
+                </select>
+
+                <div class="mods">
+                    <p>Mods :</p>
+                    <label><input class="tabbychat" type="checkbox" value="tabbychat">Activer TabbyChat</label>
+                    <label><input class="svc" type="checkbox" value="svc">Activer Simple Voice Chat</label>
+                </div>
+
+                <button class="confirm-button">Confirmer</button>
             </div>
-
-            <div class="password">
-                <input type="password" placeholder="MOT DE PASSE">
-            </div>
         </div>
+    </div>
 
-        <div class="btn">
-            <div class="play"></div>
-            <div class="settings"></div>
-        </div>
+    <script src="assets/js/launcher.js" type="module"></script>
+</body>
 
-        <div class="text">
-            Mot de passe oublié <span style='color:orange;'>ou</span> pas encore inscrit ?
-        </div>
-
-        <div class="progress">Veuillez entrer vos identifiants.</div>
-
-        <script src="assets/js/launcher.js" type="module"></script>
-    </body>
 </html>
