@@ -89,12 +89,6 @@ async function startGame() {
             addons.length > 0 ? `--mods=${addons.join(',')}` : '',
         ],
 
-        java: {
-            path: null,
-            version: 11,
-            type: 'jre',
-        },
-
         memory: {
             min: `${ram.value * 1024}M`,
             max: `${ram.value * 1024}M`
