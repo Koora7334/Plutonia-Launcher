@@ -6,3 +6,4 @@ build
 Minecraft
 *.json*
 .DS_Store
+.vs

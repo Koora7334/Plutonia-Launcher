@@ -23,7 +23,7 @@ function destroyWindow() {
 function createWindow() {
     destroyWindow();
     updateWindow = new BrowserWindow({
-        title: "Mise à jour",
+        title: "Plutonia - Mise à jour",
         width: 400,
         height: 500,
         resizable: false,
@@ -38,7 +38,7 @@ function createWindow() {
     });
     Menu.setApplicationMenu(null);
     updateWindow.setMenuBarVisibility(false);
-    updateWindow.loadFile(path.join(`${app.getAppPath()}/src/index.html`));
+    updateWindow.loadFile(path.join(`${app.getAppPath()}/src/updater.html`));
     updateWindow.once('ready-to-show', () => {
         if (updateWindow) {
             if (dev) updateWindow.webContents.openDevTools({ mode: 'detach' })

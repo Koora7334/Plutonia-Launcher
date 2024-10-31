@@ -1,0 +1,64 @@
+@import "font.css";
+
+body {
+    width: 400px;
+    height: 500px;
+    -webkit-app-region: drag;
+}
+
+body.dark-theme {
+    background-color: #161616;
+    font-family: "LemonMilk";
+    letter-spacing: 0px;
+    -webkit-user-drag: none;
+    user-select: none;
+    pointer-events: none;
+    margin: 0;
+}
+
+.hidden {
+    display: none;
+}
+
+img {
+}
+
+.splash-logo {
+    position: absolute;
+    top: 180px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 140px;
+    transition: opacity 0.3s, top 1.5s;
+    opacity: 0;
+}
+
+.splash-logo.opacity {
+    opacity: 1;
+}
+
+.splash-logo.translate {
+    top: 129px;
+}
+
+.message {
+    position: absolute;
+    width: 100%;
+    max-width: 90%; /* Limite la largeur pour éviter une barre de défilement */
+    text-align: center;
+    color: white; /* Couleur initiale en blanc */
+    opacity: 0; /* Opacité initiale (invisible) */
+    transition: opacity 1.5s; /* Transition pour l'opacité */
+    white-space: normal; /* Permet au texte de s'enrouler sur plusieurs lignes */
+    overflow: hidden; /* Évite les débordements */
+    left: 50%; /* Centre le message horizontalement */
+    transform: translateX(-50%); /* Ajustement pour un centrage parfait */
+    top: 347px;
+    font-size: 18px;
+}
+
+.message.opacity {
+    opacity: 1; /* Rend le message visible */
+    /* La couleur reste blanche ici, car elle est déjà définie dans la classe .message */
+}
