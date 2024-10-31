@@ -9,7 +9,7 @@ const path = require("path");
 const os = require("os");
 
 let isDev = process.env.NODE_ENV === 'dev';
-let updateWindow;
+let updateWindow = undefined;
 
 function getWindow() {
     return updateWindow;
@@ -44,7 +44,7 @@ function createWindow() {
 
     Menu.setApplicationMenu(null);
     updateWindow.setMenuBarVisibility(false);
-    updateWindow.loadFile(path.join(app.getAppPath(), "src", "updater.html"));
+    updateWindow.loadFile(path.join(app.getAppPath() + "/src/updater.html"));
 
     updateWindow.once("ready-to-show", () => {
         if (updateWindow) {
