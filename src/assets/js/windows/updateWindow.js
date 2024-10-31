@@ -1,58 +1,65 @@
 /**
  * @author Luuxis
+ * @description Window management for the Plutonia Updater.
  * @license CC-BY-NC 4.0 - https://creativecommons.org/licenses/by-nc/4.0
  */
 
 "use strict";
+
 const { app, BrowserWindow, Menu } = require("electron");
 const path = require("path");
 const os = require("os");
-let dev = process.env.NODE_ENV === 'dev';
-let updateWindow = undefined;
+
+const isDev = process.env.NODE_ENV === 'dev';
+let updateWindow;
 
 function getWindow() {
     return updateWindow;
 }
 
 function destroyWindow() {
-    if (!updateWindow) {
-        return;
+    if (updateWindow) {
+        updateWindow.close();
+        updateWindow = undefined;
     }
-
-    updateWindow.close();
-    updateWindow = undefined;
 }
 
 function createWindow() {
     destroyWindow();
+
+    const iconExtension = os.platform() === "win32" ? "ico" : "png";
+
     updateWindow = new BrowserWindow({
         title: "Plutonia - Mise à jour",
+
         width: 400,
         height: 500,
+
         resizable: false,
-        icon: `./src/assets/images/icon.${os.platform() === "win32" ? "ico" : "png"}`,
+
+        icon: path.join(__dirname, `./src/assets/images/icon.${iconExtension}`),
+
         frame: false,
         show: false,
         transparent: true,
+
         webPreferences: {
             contextIsolation: false,
-            nodeIntegration: true
+            nodeIntegration: true,
         },
     });
+
     Menu.setApplicationMenu(null);
     updateWindow.setMenuBarVisibility(false);
-    updateWindow.loadFile(path.join(`${app.getAppPath()}/src/updater.html`));
+    updateWindow.loadFile(path.join(app.getAppPath(), "src", "updater.html"));
 
     updateWindow.once('ready-to-show', () => {
-        if (updateWindow) {
-            updateWindow.webContents.openDevTools({ mode: 'detach' })
-            updateWindow.show();
+        if (isDev) {
+            updateWindow.webContents.openDevTools({ mode: 'detach' });
         }
+
+        updateWindow.show();
     });
 }
 
-module.exports = {
-    getWindow,
-    createWindow,
-    destroyWindow,
-};
+module.exports = { getWindow, createWindow, destroyWindow };
