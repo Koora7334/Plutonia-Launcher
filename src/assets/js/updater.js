@@ -23,10 +23,6 @@ class Splash {
 
     async registerListeners() {
         document.addEventListener('DOMContentLoaded', async () => {
-            if (process.platform == 'win32') {
-                ipcRenderer.send('update-window-progress-load')
-            }
-
             this.applySplashAnimation();
         });
     }
