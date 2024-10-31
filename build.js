@@ -1,12 +1,9 @@
 const fs = require("fs");
-
 const builder = require('electron-builder')
 const JavaScriptObfuscator = require('javascript-obfuscator');
 const nodeFetch = require('node-fetch')
 const png2icons = require('png2icons');
 const {Jimp, JimpMime } = require('jimp');
-
-
 
 const { preductname } = require('./package.json');
 
