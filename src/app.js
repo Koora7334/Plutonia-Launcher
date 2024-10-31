@@ -13,6 +13,8 @@ const fs = require('fs');
 const UpdateWindow = require("./assets/js/windows/updateWindow.js");
 const MainWindow = require("./assets/js/windows/launcherWindow.js");
 
+const OptionWindow = require("./assets/js/windows/optionWindow.js");
+
 let dev = process.env.NODE_ENV === 'dev';
 
 if (dev) {
@@ -29,6 +31,7 @@ else app.whenReady().then(() => {
     if (dev) return MainWindow.createWindow()
     UpdateWindow.createWindow()
 });
+
 
 ipcMain.on('main-window-open', () => MainWindow.createWindow())
 ipcMain.on('main-window-dev-tools', () => MainWindow.getWindow().webContents.openDevTools({ mode: 'detach' }))

@@ -1,15 +1,17 @@
+/**
+ * @author Luuxis
+ * @license CC-BY-NC 4.0 - https://creativecommons.org/licenses/by-nc/4.0
+ */
+
 const { Launch, Plutonia } = require('minecraft-java-core');
 const os = require('os');
 const launch = new Launch();
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, dialog } = require('electron');
 
 const login = document.querySelector('.login input');
+
 const passeword = document.querySelector('.password input');
 const authCode = document.querySelector('.auth-code input');
-const ram = document.querySelector('.ram-select');
-
-const tabbychat = document.querySelector('.tabbychat');
-const svc = document.querySelector('.svc');
 
 let auth = null;
 
@@ -22,7 +24,8 @@ document.addEventListener('keydown', e => {
 });
 
 document.querySelector('.btn .settings').addEventListener('click', () => {
-    document.querySelector('.box').style.display = 'flex';
+    // document.querySelector('.box').style.display = 'flex';
+    ipcRenderer.send('open-options-panel');
 });
 
 document.querySelector('.confirm-button').addEventListener('click', () => {

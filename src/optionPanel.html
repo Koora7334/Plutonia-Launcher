@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Plutonia - Options</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        .container {
+            width: 275px;
+            height: 225px;
+            padding: 15px;
+        }
+
+        h2 {
+            font-size: 18px;
+            text-align: center;
+            margin-top: 0;
+        }
+
+        label, select, input[type="checkbox"], button {
+            display: block;
+            margin: 10px auto;
+        }
+
+        label {
+            font-size: 14px;
+        }
+
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Options</h2>
+
+        <label for="ramBox">Ram:</label>
+        <select id="ramBox">
+            <option value="1024">1024 MB</option>
+            <option value="2048">2048 MB</option>
+            <option value="4096">4096 MB</option>
+            <option value="8192">8192 MB</option>
+            <!-- Add more options as needed -->
+        </select>
+
+        <h3>Mods:</h3>
+        <label>
+            <input type="checkbox" id="tabbychatCheckBox">
+            Activer TabbyChat
+        </label>
+        <label>
+            <input type="checkbox" id="simpleVoiceChatCheckBox">
+            Activer Simple Voice Chat
+        </label>
+
+        <button id="confirmButton">Confirmer</button>
+    </div>
+
+    <script>const { ipcRenderer } = require('electron');
+
+        document.getElementById('confirmButton').addEventListener('click', () => {
+            const selectedRam = document.getElementById('ramBox').value;
+            const tabbychatEnabled = document.getElementById('tabbychatCheckBox').checked;
+            const voiceChatEnabled = document.getElementById('simpleVoiceChatCheckBox').checked;
+
+            ipcRenderer.send('options-confirm', {
+                ram: selectedRam,
+                tabbychat: tabbychatEnabled,
+                voiceChat: voiceChatEnabled
+            });
+            window.close();
+        });
+
+        // Load existing configuration
+        ipcRenderer.on('load-config', (event, config) => {
+            document.getElementById('ramBox').value = config.ram;
+            document.getElementById('tabbychatCheckBox').checked = config.tabbychat;
+            document.getElementById('simpleVoiceChatCheckBox').checked = config.voiceChat;
+        });</script>
+</body>
+</html>

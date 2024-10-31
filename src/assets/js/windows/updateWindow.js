@@ -47,13 +47,11 @@ function createWindow() {
     updateWindow.loadFile(path.join(app.getAppPath() + "/src/updater.html")); // Never change this, its completly fucked up.
 
     updateWindow.once("ready-to-show", () => {
-        if (updateWindow) {
-            if (isDev) {
-                updateWindow.webContents.openDevTools({ mode: 'detach' });
-            }
-
-            updateWindow.show();
+        if (isDev) {
+            updateWindow.webContents.openDevTools({ mode: 'detach' });
         }
+
+        updateWindow.show();
     });
 }
 

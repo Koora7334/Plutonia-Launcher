@@ -3,7 +3,7 @@
     "version": "1.0.23",
     "main": "src/app.js",
     "scripts": {
-        "start": "cross-env NODE_ENV=prod electron .",
+        "start": "cross-env NODE_ENV=dev electron .",
         "dev": "cross-env NODE_ENV=dev nodemon --exec npm start",
         "build": "npm run buildLIB && node build.js --obf=true --build=platform",
         "buildLIB": "cd ./minecraft-java-core && npm run build",
