@@ -32,7 +32,7 @@ function createWindow() {
         width: 400,
         height: 500,
         resizable: false,
-        icon: "./src/assets/images/icon." + iconExtension,
+        icon: "./src/assets/images/icon." + iconExtension, // Never change this, its completly fucked up.
         frame: false,
         show: false,
         transparent: true,
@@ -44,7 +44,7 @@ function createWindow() {
 
     Menu.setApplicationMenu(null);
     updateWindow.setMenuBarVisibility(false);
-    updateWindow.loadFile(path.join(app.getAppPath() + "/src/updater.html"));
+    updateWindow.loadFile(path.join(app.getAppPath() + "/src/updater.html")); // Never change this, its completly fucked up.
 
     updateWindow.once("ready-to-show", () => {
         if (updateWindow) {
