@@ -61,7 +61,7 @@ class Index {
     }
 
     async buildPlatform() {
-        await this.Obfuscate();
+        // await this.Obfuscate();
         builder.build({
             config: {
                 generateUpdatesFilesForAllChannels: false,
