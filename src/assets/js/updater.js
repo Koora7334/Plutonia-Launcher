@@ -72,6 +72,7 @@ class Splash {
 
             console.log("Downloading update... (total: " + percents + "%");
             this.setMessage("Téléchargement en cours... (" + percents + ")");
+            return;
         })
 
         ipcRenderer.on('update-not-available', () => {
