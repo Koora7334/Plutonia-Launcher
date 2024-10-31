@@ -41,7 +41,7 @@ function createWindow() {
     updateWindow.loadFile(path.join(`${app.getAppPath()}/src/updater.html`));
     updateWindow.once('ready-to-show', () => {
         if (updateWindow) {
-            if (dev) updateWindow.webContents.openDevTools({ mode: 'detach' })
+            updateWindow.webContents.openDevTools({ mode: 'detach' })
             updateWindow.show();
         }
     });
