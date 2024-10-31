@@ -83,22 +83,53 @@ class Splash {
         })
     }
 
-    async dowloadUpdate() {
-        const repoURL = pkg.repository.url.replace("git+", "").replace(".git", "").replace("https://github.com/", "").split("/");
-        const githubAPI = await nodeFetch('https://api.github.com').then(res => res.json()).catch(err => err);
+    async downloadUpdate() {
+        try {
+            const repoURL = this.extractRepoDetails(pkg.repository.url);
+            const latestReleaseAssets = await this.fetchLatestReleaseAssets(repoURL);
+            const latestAsset = this.getLatestRelease(latestReleaseAssets);
 
+            if (latestAsset) {
+                shell.openExternal(latestAsset.browser_download_url);
+                this.setMessageAndClose("Mise à jour téléchargée.");
+            } else {
+                console.error("No suitable release found for your operating system.");
+            }
+        } catch (error) {
+            console.error("An error occurred while downloading the update:", error);
+        }
+    }
+
+    extractRepoDetails(repoUrl) {
+        return repoUrl.replace("git+", "").replace(".git", "").replace("https://github.com/", "").split("/");
+    }
+
+    async fetchLatestReleaseAssets(repoURL) {
+        const githubAPI = await nodeFetch('https://api.github.com').then(res => res.json());
         const githubAPIRepoURL = githubAPI.repository_url.replace("{owner}", repoURL[0]).replace("{repo}", repoURL[1]);
-        const githubAPIRepo = await nodeFetch(githubAPIRepoURL).then(res => res.json()).catch(err => err);
 
-        const releases_url = await nodeFetch(githubAPIRepo.releases_url.replace("{/id}", '')).then(res => res.json()).catch(err => err);
-        const latestRelease = releases_url[0].assets;
-        let latest;
+        const githubAPIRepo = await nodeFetch(githubAPIRepoURL).then(res => res.json());
+        const releasesUrl = await nodeFetch(githubAPIRepo.releases_url.replace("{/id}", '')).then(res => res.json());
 
-        if (os.platform() == 'darwin') latest = this.getLatestRelease('mac', '.dmg', latestRelease);
-        else if (os == 'linux') latest = this.getLatestRelease('linux', '.appimage', latestRelease);
+        return releasesUrl[0].assets;
+    }
 
-        shell.openExternal(latest.browser_download_url);
-        this.shutdown("Début du téléchargement...");
+    getLatestRelease(osInput, preferredFileFormat, assets) {
+        const normalizedOS = osInput.toLowerCase();
+
+        const filteredAssets = assets.filter(asset => {
+            const assetName = asset.name.toLowerCase();
+            const isOSCompatible = assetName.includes(normalizedOS);
+            const isFormatCompatible = assetName.endsWith(preferredFileFormat);
+
+            return isOSCompatible && isFormatCompatible;
+        });
+
+        if (filteredAssets.length === 0) {
+            return null;
+        }
+
+        return filteredAssets.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
     }
 
     startLauncher() {
@@ -121,24 +152,6 @@ class Splash {
                 ipcRenderer.send('update-window-close');
             }
         }, 1000);
-    }
-
-    getLatestRelease(osInput, preferredFileFormat, assets) {
-        const normalizedOS = osInput.toLowerCase();
-
-        const filteredAssets = assets.filter(asset => {
-            const assetName = asset.name.toLowerCase();
-            const isOSCompatible = assetName.includes(normalizedOS);
-            const isFormatCompatible = assetName.endsWith(preferredFileFormat);
-
-            return isOSCompatible && isFormatCompatible;
-        });
-
-        if (filteredAssets.length === 0) {
-            return null;
-        }
-
-        return filteredAssets.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
     }
 }
 
