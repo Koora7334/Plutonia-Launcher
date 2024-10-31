@@ -8,153 +8,112 @@ const pkg = require('../package.json');
 const os = require('os');
 const nodeFetch = require("node-fetch");
 
+
 class Splash {
     constructor() {
-        this.initElements();
-        this.bindEvents();
-    }
-
-    initElements() {
         this.splash = document.querySelector(".splash-logo");
-        //this.splashMessage = document.querySelector(".splash-message");
+        // this.splashMessage = document.querySelector(".splash-message");
         // this.splashAuthor = document.querySelector(".splash-author");
         this.message = document.querySelector(".message");
         this.progress = document.querySelector(".progress");
-    }
 
-    bindEvents() {
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             if (process.platform == 'win32') {
                 ipcRenderer.send('update-window-progress-load')
             }
-
-            this.startAnimation();
+            this.startAnimation()
         });
     }
 
     async startAnimation() {
-        await this.sleep(100);
+        await sleep(100);
         document.querySelector("#splash").style.display = "block";
-        await this.applySplashAnimation();
+        await sleep(500);
+        this.splash.classList.add("opacity");
+        await sleep(500);
+        this.splash.classList.add("translate");
+        //this.splashMessage.classList.add("opacity");
+        // this.splashAuthor.classList.add("opacity");
+        this.message.classList.add("opacity");
+        await sleep(1000);
         this.checkUpdate();
     }
 
-    async applySplashAnimation() {
-        const animations = [
-            () => this.splash.classList.add("opacity"),
-            () => this.splash.classList.add("translate"),
-            //() => this.splashMessage.classList.add("opacity"),
-            //() => this.splashAuthor.classList.add("opacity"),
-            () => this.message.classList.add("opacity")
-        ];
-
-        for (const animate of animations) {
-            await this.sleep(500);
-            animate();
-        }
-    }
-
     async checkUpdate() {
-        this.setStatus("Recherche de mise à jour...");
-        console.log("Searching for updates... (start)");
-        try {
-            console.log("Invoking update-app...");
-            await ipcRenderer.invoke('update-app');
-        } catch (err) {
-            console.log("Cant invoke update-app...".err.message);
+        this.setStatus(`Recherche de mise à jour...`);
+
+        ipcRenderer.invoke('update-app').then().catch(err => {
             return this.shutdown(`Erreur lors de la recherche de mise à jour :<br>${err.message}`);
-        }
+        });
 
-        console.log("Next...");
+        ipcRenderer.on('updateAvailable', () => {
+            this.setStatus(`Mise à jour disponible !`);
+            if (os.platform() == 'win32') {
+                this.toggleProgress();
+                ipcRenderer.send('start-update');
+            }
+            else return this.dowloadUpdate();
+        })
 
-        ipcRenderer.on('updateAvailable', this.handleUpdateAvailable.bind(this));
-        console.log("Next... 1");
-        ipcRenderer.on('error', this.handleError.bind(this));
-        console.log("Next... 2");
-        ipcRenderer.on('download-progress', this.handleDownloadProgress.bind(this));
-        console.log("Next... 3");
-        ipcRenderer.on('update-not-available', this.startLauncher.bind(this));
-        console.log("Next... 4");
+        ipcRenderer.on('error', (event, err) => {
+            if (err) return this.shutdown(`${err.message}`);
+        })
+
+        ipcRenderer.on('download-progress', (event, progress) => {
+            ipcRenderer.send('update-window-progress', { progress: progress.transferred, size: progress.total })
+            this.setProgress(progress.transferred, progress.total);
+        })
+
+        ipcRenderer.on('update-not-available', () => {
+            console.error("Mise à jour non disponible.");
+            this.startLauncher();
+        })
     }
 
-    handleUpdateAvailable() {
-        console.log("Update dispo!");
-        this.setStatus("Mise à jour disponible !");
-        if (os.platform() === 'win32') {
-            this.toggleProgress();
-            ipcRenderer.send('start-update');
-        } else {
-            this.downloadUpdate();
-        }
+    getLatestReleaseForOS(os, preferredFormat, asset) {
+        return asset.filter(asset => {
+            const name = asset.name.toLowerCase();
+            const isOSMatch = name.includes(os);
+            const isFormatMatch = name.endsWith(preferredFormat);
+            return isOSMatch && isFormatMatch;
+        }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
     }
 
-    handleError(event, err) {
-        console.log("Error! ".err.message);
-        if (err) this.shutdown(`${err.message}`);
-    }
+    async dowloadUpdate() {
+        const repoURL = pkg.repository.url.replace("git+", "").replace(".git", "").replace("https://github.com/", "").split("/");
+        const githubAPI = await nodeFetch('https://api.github.com').then(res => res.json()).catch(err => err);
 
-    handleDownloadProgress(event, progress) {
-        console.log("dl progress!");
-        ipcRenderer.send('update-window-progress', { progress: progress.transferred, size: progress.total });
-        this.setProgress(progress.transferred, progress.total);
-    }
+        const githubAPIRepoURL = githubAPI.repository_url.replace("{owner}", repoURL[0]).replace("{repo}", repoURL[1]);
+        const githubAPIRepo = await nodeFetch(githubAPIRepoURL).then(res => res.json()).catch(err => err);
 
-    async downloadUpdate() {
-        console.log("DL Update!");
-        const { repository: { url } } = pkg;
-        const [owner, repo] = url.replace(/(git\+|\.git|https:\/\/github\.com\/)/g, "").split("/");
-        const githubAPIRepoURL = `https://api.github.com/repos/${owner}/${repo}/releases`;
-        let releases;
+        const releases_url = await nodeFetch(githubAPIRepo.releases_url.replace("{/id}", '')).then(res => res.json()).catch(err => err);
+        const latestRelease = releases_url[0].assets;
+        let latest;
 
-        try {
-            console.log("get release!");
-            releases = await (await nodeFetch(githubAPIRepoURL)).json();
-        } catch (err) {
-            console.log("cant get release!");
-            return this.shutdown("Impossible de récupérer les informations de mise à jour.");
-        }
+        if (os.platform() == 'darwin') latest = this.getLatestReleaseForOS('mac', '.dmg', latestRelease);
+        else if (os == 'linux') latest = this.getLatestReleaseForOS('linux', '.appimage', latestRelease);
 
-        const latestRelease = releases[0]?.assets;
-        const latest = this.getLatestReleaseForOS(os.platform(), latestRelease);
 
-        console.log("latest? ".latest);
-
-        if (latest) {
-            console.log("Downloading!");
-            this.setStatus(`Mise à jour disponible !<br><div class="download-update">Télécharger</div>`);
-            document.querySelector(".download-update").addEventListener("click", () => {
-                shell.openExternal(latest.browser_download_url);
-                this.shutdown("Téléchargement en cours...");
-            });
-        }
-    }
-
-    getLatestReleaseForOS(platform, assets) {
-        console.log("Get release!");
-        const formats = { win32: '.exe', darwin: '.dmg', linux: '.appimage' };
-        const preferredFormat = formats[platform] || '.exe';
-
-        return assets?.filter(asset =>
-            asset.name.toLowerCase().includes(platform) && asset.name.endsWith(preferredFormat)
-        ).sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+        this.setStatus(`Mise à jour disponible !<br><div class="download-update">Télécharger</div>`);
+        document.querySelector(".download-update").addEventListener("click", () => {
+            shell.openExternal(latest.browser_download_url);
+            return this.shutdown("Téléchargement en cours...");
+        });
     }
 
     startLauncher() {
-        console.log("Start!");
-        this.setStatus("Démarrage du launcher");
+        this.setStatus(`Démarrage du launcher`);
         ipcRenderer.send('main-window-open');
         ipcRenderer.send('update-window-close');
     }
 
     shutdown(text) {
         this.setStatus(`${text}<br>Arrêt dans 5 secondes...`);
-        let countdown = 4;
-        const interval = setInterval(() => {
-            this.setStatus(`${text}<br>Arrêt dans ${countdown--} secondes...`);
-            if (countdown < 0) {
-                clearInterval(interval);
-                ipcRenderer.send('update-window-close');
-            }
+
+        let i = 4;
+        setInterval(() => {
+            this.setStatus(`${text}<br>Arrêt dans ${i--} secondes...`);
+            if (i < 0) ipcRenderer.send('update-window-close');
         }, 1000);
     }
 
@@ -170,10 +129,16 @@ class Splash {
         this.progress.value = value;
         this.progress.max = max;
     }
-
-    sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
 }
+
+function sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
+}
+
+document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.shiftKey && e.keyCode == 73 || e.keyCode == 123) {
+        ipcRenderer.send("update-window-dev-tools");
+    }
+})
 
 new Splash();
