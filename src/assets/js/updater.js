@@ -54,8 +54,15 @@ class Splash {
         });
 
         ipcRenderer.on('updateAvailable', () => {
-            this.setMessage("Une mise à jour est disponible !");
-            this.dowloadUpdate();
+            if (os.platform() == 'win32') {
+                this.setMessage("Téléchargement de la mise à jour...");
+                ipcRenderer.send('start-update');
+            } else {
+                this.setMessage("<span style='color: red;'>Une mise à jour est disponible, veuillez re-télécharger notre lanceur !</span>");
+                sleep(5_000);
+                this.startLauncher();
+            }
+            
             return;
         })
 
@@ -81,55 +88,6 @@ class Splash {
             this.startLauncher();
             return;
         })
-    }
-
-    async downloadUpdate() {
-        try {
-            const repoURL = this.extractRepoDetails(pkg.repository.url);
-            const latestReleaseAssets = await this.fetchLatestReleaseAssets(repoURL);
-            const latestAsset = this.getLatestRelease(latestReleaseAssets);
-
-            if (latestAsset) {
-                shell.openExternal(latestAsset.browser_download_url);
-                this.setMessageAndClose("Mise à jour téléchargée.");
-            } else {
-                console.error("No suitable release found for your operating system.");
-            }
-        } catch (error) {
-            console.error("An error occurred while downloading the update:", error);
-        }
-    }
-
-    extractRepoDetails(repoUrl) {
-        return repoUrl.replace("git+", "").replace(".git", "").replace("https://github.com/", "").split("/");
-    }
-
-    async fetchLatestReleaseAssets(repoURL) {
-        const githubAPI = await nodeFetch('https://api.github.com').then(res => res.json());
-        const githubAPIRepoURL = githubAPI.repository_url.replace("{owner}", repoURL[0]).replace("{repo}", repoURL[1]);
-
-        const githubAPIRepo = await nodeFetch(githubAPIRepoURL).then(res => res.json());
-        const releasesUrl = await nodeFetch(githubAPIRepo.releases_url.replace("{/id}", '')).then(res => res.json());
-
-        return releasesUrl[0].assets;
-    }
-
-    getLatestRelease(osInput, preferredFileFormat, assets) {
-        const normalizedOS = osInput.toLowerCase();
-
-        const filteredAssets = assets.filter(asset => {
-            const assetName = asset.name.toLowerCase();
-            const isOSCompatible = assetName.includes(normalizedOS);
-            const isFormatCompatible = assetName.endsWith(preferredFileFormat);
-
-            return isOSCompatible && isFormatCompatible;
-        });
-
-        if (filteredAssets.length === 0) {
-            return null;
-        }
-
-        return filteredAssets.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
     }
 
     startLauncher() {
