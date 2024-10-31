@@ -11,7 +11,7 @@ const path = require('path');
 const fs = require('fs');
 
 const UpdateWindow = require("./assets/js/windows/updateWindow.js");
-const MainWindow = require("./assets/js/windows/mainWindow.js");
+const MainWindow = require("./assets/js/windows/launcherWindow.js");
 
 let dev = process.env.NODE_ENV === 'dev';
 

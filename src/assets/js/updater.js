@@ -75,7 +75,7 @@ class Splash {
         })
 
         ipcRenderer.on('download-progress', (event, progress) => {
-            let percents = progress.transferred / progress.total;
+            let percents = Math.round((progress.transferred / progress.total) * 100);
 
             console.log("Downloading update... (total: " + percents + "%");
             this.setMessage("Téléchargement en cours... (" + percents + ")");
