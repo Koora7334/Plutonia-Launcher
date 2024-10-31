@@ -24,6 +24,10 @@ class Splash {
 
     bindEvents() {
         document.addEventListener('DOMContentLoaded', () => {
+            if (process.platform == 'win32') {
+                ipcRenderer.send('update-window-progress-load')
+            }
+
             this.startAnimation();
         });
     }
