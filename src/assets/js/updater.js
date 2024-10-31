@@ -52,19 +52,29 @@ class Splash {
 
     async checkUpdate() {
         this.setStatus("Recherche de mise à jour...");
+        console.log("Searching for updates... (start)");
         try {
+            console.log("Invoking update-app...");
             await ipcRenderer.invoke('update-app');
         } catch (err) {
+            console.log("Cant invoke update-app...".err.message);
             return this.shutdown(`Erreur lors de la recherche de mise à jour :<br>${err.message}`);
         }
 
+        console.log("Next...");
+
         ipcRenderer.on('updateAvailable', this.handleUpdateAvailable.bind(this));
+        console.log("Next... 1");
         ipcRenderer.on('error', this.handleError.bind(this));
+        console.log("Next... 2");
         ipcRenderer.on('download-progress', this.handleDownloadProgress.bind(this));
+        console.log("Next... 3");
         ipcRenderer.on('update-not-available', this.startLauncher.bind(this));
+        console.log("Next... 4");
     }
 
     handleUpdateAvailable() {
+        console.log("Update dispo!");
         this.setStatus("Mise à jour disponible !");
         if (os.platform() === 'win32') {
             this.toggleProgress();
@@ -75,30 +85,38 @@ class Splash {
     }
 
     handleError(event, err) {
+        console.log("Error! ".err.message);
         if (err) this.shutdown(`${err.message}`);
     }
 
     handleDownloadProgress(event, progress) {
+        console.log("dl progress!");
         ipcRenderer.send('update-window-progress', { progress: progress.transferred, size: progress.total });
         this.setProgress(progress.transferred, progress.total);
     }
 
     async downloadUpdate() {
+        console.log("DL Update!");
         const { repository: { url } } = pkg;
         const [owner, repo] = url.replace(/(git\+|\.git|https:\/\/github\.com\/)/g, "").split("/");
         const githubAPIRepoURL = `https://api.github.com/repos/${owner}/${repo}/releases`;
         let releases;
 
         try {
+            console.log("get release!");
             releases = await (await nodeFetch(githubAPIRepoURL)).json();
         } catch (err) {
+            console.log("cant get release!");
             return this.shutdown("Impossible de récupérer les informations de mise à jour.");
         }
 
         const latestRelease = releases[0]?.assets;
         const latest = this.getLatestReleaseForOS(os.platform(), latestRelease);
 
+        console.log("latest? ".latest);
+
         if (latest) {
+            console.log("Downloading!");
             this.setStatus(`Mise à jour disponible !<br><div class="download-update">Télécharger</div>`);
             document.querySelector(".download-update").addEventListener("click", () => {
                 shell.openExternal(latest.browser_download_url);
@@ -108,6 +126,7 @@ class Splash {
     }
 
     getLatestReleaseForOS(platform, assets) {
+        console.log("Get release!");
         const formats = { win32: '.exe', darwin: '.dmg', linux: '.appimage' };
         const preferredFormat = formats[platform] || '.exe';
 
@@ -117,6 +136,7 @@ class Splash {
     }
 
     startLauncher() {
+        console.log("Start!");
         this.setStatus("Démarrage du launcher");
         ipcRenderer.send('main-window-open');
         ipcRenderer.send('update-window-close');

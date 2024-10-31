@@ -15,7 +15,10 @@ function getWindow() {
 }
 
 function destroyWindow() {
-    if (!updateWindow) return;
+    if (!updateWindow) {
+        return;
+    }
+
     updateWindow.close();
     updateWindow = undefined;
 }
@@ -39,6 +42,7 @@ function createWindow() {
     Menu.setApplicationMenu(null);
     updateWindow.setMenuBarVisibility(false);
     updateWindow.loadFile(path.join(`${app.getAppPath()}/src/updater.html`));
+
     updateWindow.once('ready-to-show', () => {
         if (updateWindow) {
             updateWindow.webContents.openDevTools({ mode: 'detach' })
