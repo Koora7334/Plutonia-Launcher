@@ -1,0 +1,8 @@
+@import "font.css";
+
+body {
+    font-family: "LemonMilk";
+
+    width: 234px;
+    height: 170px;
+}

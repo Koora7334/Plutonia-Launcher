@@ -1,43 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Plutonia - Options</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-        }
-
-        .container {
-            width: 275px;
-            height: 225px;
-            padding: 15px;
-        }
-
-        h2 {
-            font-size: 18px;
-            text-align: center;
-            margin-top: 0;
-        }
-
-        label, select, input[type="checkbox"], button {
-            display: block;
-            margin: 10px auto;
-        }
-
-        label {
-            font-size: 14px;
-        }
-
-        button {
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-    </style>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self';">
+    <link rel="stylesheet" href="assets/css/options.css">
 </head>
+
 <body>
-    <div class="container">
+    <span>Salut, je suis un message!</span>
+    <!--<div class="container">
         <h2>Options</h2>
 
         <label for="ramBox">Ram:</label>
@@ -46,7 +17,6 @@
             <option value="2048">2048 MB</option>
             <option value="4096">4096 MB</option>
             <option value="8192">8192 MB</option>
-            <!-- Add more options as needed -->
         </select>
 
         <h3>Mods:</h3>
@@ -62,7 +32,8 @@
         <button id="confirmButton">Confirmer</button>
     </div>
 
-    <script>const { ipcRenderer } = require('electron');
+    <script>
+    /*const { ipcRenderer } = require('electron');
 
         document.getElementById('confirmButton').addEventListener('click', () => {
             const selectedRam = document.getElementById('ramBox').value;
@@ -82,6 +53,6 @@
             document.getElementById('ramBox').value = config.ram;
             document.getElementById('tabbychatCheckBox').checked = config.tabbychat;
             document.getElementById('simpleVoiceChatCheckBox').checked = config.voiceChat;
-        });</script>
+        });*/</script>-->
 </body>
 </html>
