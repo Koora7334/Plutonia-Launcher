@@ -49,8 +49,7 @@ class Splash {
 
         ipcRenderer.invoke('update-app').then().catch(error => {
             console.log("Error happened during update: " + error.message);
-            this.setMessageAndClose("<span style='color: red;'>Une erreur est survenue lors de la mise à jour.</span>");
-            return;
+            return this.setMessageAndClose("<span style='color: red;'>Une erreur est survenue lors de la mise à jour.</span>");
         });
 
         ipcRenderer.on('updateAvailable', () => {
@@ -69,24 +68,21 @@ class Splash {
         ipcRenderer.on('error', (event, error) => {
             if (error) {
                 console.log("Error happened during update: " + error.message);
-                this.setMessageAndClose("<span style='color: red;'>Une erreur est survenue lors de la mise à jour.</span>");
-                return;
+                return this.setMessageAndClose("<span style='color: red;'>Une erreur est survenue lors de la mise à jour.</span>");
             }
         })
 
         ipcRenderer.on('download-progress', (event, progress) => {
             let percents = Math.round((progress.transferred / progress.total) * 100);
 
-            console.log("Downloading update... (total: " + percents + "%");
-            this.setMessage("Téléchargement en cours... (" + percents + ")");
-            return;
+            console.log("Downloading update... (total: " + percents + "%)");
+            return this.setMessage("Téléchargement en cours... (" + percents + "%)");
         })
 
         ipcRenderer.on('update-not-available', () => {
             console.log("The launcher is currently up to date.");
             this.setMessage("Votre lanceur est à jour !");
-            this.startLauncher();
-            return;
+            return this.startLauncher();
         })
     }
 
