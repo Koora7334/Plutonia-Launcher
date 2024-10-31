@@ -9,7 +9,7 @@ const { preductname } = require('./package.json');
 
 class Index {
     async init() {
-        this.obf = true
+        this.obf = false
         this.Fileslist = []
         process.argv.forEach(async val => {
             if (val.startsWith('--icon')) {
@@ -58,7 +58,7 @@ class Index {
     }
 
     async buildPlatform() {
-        // await this.Obfuscate();
+        await this.Obfuscate();
         builder.build({
             config: {
                 generateUpdatesFilesForAllChannels: false,
