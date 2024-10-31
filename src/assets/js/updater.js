@@ -3,80 +3,87 @@
  * @license CC-BY-NC 4.0 - https://creativecommons.org/licenses/by-nc/4.0
  */
 
-const { ipcRenderer, shell } = require('electron');
 const pkg = require('../package.json');
+
+const { ipcRenderer, shell } = require('electron');
 const os = require('os');
 const nodeFetch = require("node-fetch");
 
-
 class Splash {
     constructor() {
+        this.initElements()
+        this.registerListeners()
+    }
+
+    initElements() {
         this.splash = document.querySelector(".splash-logo");
-        // this.splashMessage = document.querySelector(".splash-message");
-        // this.splashAuthor = document.querySelector(".splash-author");
         this.message = document.querySelector(".message");
         this.progress = document.querySelector(".progress");
+    }
 
+    async registerListeners() {
         document.addEventListener('DOMContentLoaded', async () => {
             if (process.platform == 'win32') {
                 ipcRenderer.send('update-window-progress-load')
             }
-            this.startAnimation()
+
+            this.applySplashAnimation();
         });
     }
 
-    async startAnimation() {
-        await sleep(100);
+    async applySplashAnimation() {
+        const animations = [
+            () => this.splash.classList.add("opacity"),
+            () => this.splash.classList.add("translate"),
+            () => this.message.classList.add("opacity")
+        ];
+
         document.querySelector("#splash").style.display = "block";
-        await sleep(500);
-        this.splash.classList.add("opacity");
-        await sleep(500);
-        this.splash.classList.add("translate");
-        //this.splashMessage.classList.add("opacity");
-        // this.splashAuthor.classList.add("opacity");
-        this.message.classList.add("opacity");
-        await sleep(1000);
-        this.checkUpdate();
+
+        for (const animate of animations) {
+            await sleep(500);
+            animate();
+        }
+
+        this.startUpdate();
     }
 
-    async checkUpdate() {
-        this.setStatus(`Recherche de mise à jour...`);
+    async startUpdate() {
+        this.setMessage("Recherche de mise à jour...");
 
-        ipcRenderer.invoke('update-app').then().catch(err => {
-            return this.shutdown(`Erreur lors de la recherche de mise à jour :<br>${err.message}`);
+        ipcRenderer.invoke('update-app').then().catch(error => {
+            console.log("Error happened during update: " + error.message);
+            this.setMessageAndClose("<span style='color: red;'>Une erreur est survenue lors de la mise à jour.</span>");
+            return;
         });
 
         ipcRenderer.on('updateAvailable', () => {
-            this.setStatus(`Mise à jour disponible !`);
-            if (os.platform() == 'win32') {
-                this.toggleProgress();
-                ipcRenderer.send('start-update');
-            }
-            else return this.dowloadUpdate();
+            this.setMessage("Une mise à jour est disponible !");
+            this.dowloadUpdate();
+            return;
         })
 
-        ipcRenderer.on('error', (event, err) => {
-            if (err) return this.shutdown(`${err.message}`);
+        ipcRenderer.on('error', (event, error) => {
+            if (error) {
+                console.log("Error happened during update: " + error.message);
+                this.setMessageAndClose("<span style='color: red;'>Une erreur est survenue lors de la mise à jour.</span>");
+                return;
+            }
         })
 
         ipcRenderer.on('download-progress', (event, progress) => {
-            ipcRenderer.send('update-window-progress', { progress: progress.transferred, size: progress.total })
-            this.setProgress(progress.transferred, progress.total);
+            percents = progress.transferred / progress.total;
+
+            console.log("Downloading update... (total: " + percents + "%");
+            this.setMessage("Téléchargement en cours... (" + percents + ")");
         })
 
         ipcRenderer.on('update-not-available', () => {
-            console.error("Mise à jour non disponible.");
+            console.log("The launcher is currently up to date.");
+            this.setMessage("Votre lanceur est à jour !");
             this.startLauncher();
+            return;
         })
-    }
-
-    getLatestReleaseForOS(os, preferredFormat, asset) {
-        return asset.filter(asset => {
-            const name = asset.name.toLowerCase();
-            const isOSMatch = name.includes(os);
-            const isFormatMatch = name.endsWith(preferredFormat);
-            return isOSMatch && isFormatMatch;
-        }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
     }
 
     async dowloadUpdate() {
@@ -90,55 +97,56 @@ class Splash {
         const latestRelease = releases_url[0].assets;
         let latest;
 
-        if (os.platform() == 'darwin') latest = this.getLatestReleaseForOS('mac', '.dmg', latestRelease);
-        else if (os == 'linux') latest = this.getLatestReleaseForOS('linux', '.appimage', latestRelease);
+        if (os.platform() == 'darwin') latest = this.getLatestRelease('mac', '.dmg', latestRelease);
+        else if (os == 'linux') latest = this.getLatestRelease('linux', '.appimage', latestRelease);
 
-
-        this.setStatus(`Mise à jour disponible !<br><div class="download-update">Télécharger</div>`);
-        document.querySelector(".download-update").addEventListener("click", () => {
-            shell.openExternal(latest.browser_download_url);
-            return this.shutdown("Téléchargement en cours...");
-        });
+        shell.openExternal(latest.browser_download_url);
+        this.shutdown("Début du téléchargement...");
     }
 
     startLauncher() {
-        this.setStatus(`Démarrage du launcher`);
         ipcRenderer.send('main-window-open');
         ipcRenderer.send('update-window-close');
     }
 
-    shutdown(text) {
-        this.setStatus(`${text}<br>Arrêt dans 5 secondes...`);
+    setMessage(message) {
+        this.message.innerHTML = message;
+    }
 
-        let i = 4;
-        setInterval(() => {
-            this.setStatus(`${text}<br>Arrêt dans ${i--} secondes...`);
-            if (i < 0) ipcRenderer.send('update-window-close');
+    setMessageAndClose(message) {
+        let countdown = 10;
+
+        const intervalId = setInterval(() => {
+            this.setMessage(message + "<br>Fermeture dans " + countdown-- + " secondes...</br>");
+
+            if (countdown < 0) {
+                clearInterval(intervalId);
+                ipcRenderer.send('update-window-close');
+            }
         }, 1000);
     }
 
-    setStatus(text) {
-        this.message.innerHTML = text;
-    }
+    getLatestRelease(osInput, preferredFileFormat, assets) {
+        const normalizedOS = osInput.toLowerCase();
 
-    toggleProgress() {
-        if (this.progress.classList.toggle("show")) this.setProgress(0, 1);
-    }
+        const filteredAssets = assets.filter(asset => {
+            const assetName = asset.name.toLowerCase();
+            const isOSCompatible = assetName.includes(normalizedOS);
+            const isFormatCompatible = assetName.endsWith(preferredFileFormat);
 
-    setProgress(value, max) {
-        this.progress.value = value;
-        this.progress.max = max;
+            return isOSCompatible && isFormatCompatible;
+        });
+
+        if (filteredAssets.length === 0) {
+            return null;
+        }
+
+        return filteredAssets.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
     }
 }
 
 function sleep(ms) {
-    return new Promise(r => setTimeout(r, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
-
-document.addEventListener("keydown", (e) => {
-    if (e.ctrlKey && e.shiftKey && e.keyCode == 73 || e.keyCode == 123) {
-        ipcRenderer.send("update-window-dev-tools");
-    }
-})
 
 new Splash();
