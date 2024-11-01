@@ -1,6 +1,6 @@
 {
     "name": "Plutonia",
-    "version": "1.0.33",
+    "version": "1.0.34",
     "main": "src/app.js",
     "scripts": {
         "start": "cross-env NODE_ENV=dev electron .",
