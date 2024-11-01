@@ -35,7 +35,12 @@ else app.whenReady().then(() => {
 ipcMain.on('main-window-open', () => MainWindow.createWindow())
 ipcMain.on('main-window-dev-tools', () => MainWindow.getWindow().webContents.openDevTools({ mode: 'detach' }))
 ipcMain.on('main-window-dev-tools-close', () => MainWindow.getWindow().webContents.closeDevTools())
-ipcMain.on('main-window-close', () => app.quit())
+
+ipcMain.on('main-window-close', () => {
+    MainWindow.destroyWindow();
+    OptionWindow.destroyWindow();
+})
+
 ipcMain.on('main-window-reload', () => MainWindow.getWindow().reload())
 ipcMain.on('main-window-progress', (event, options) => MainWindow.getWindow().setProgressBar(options.progress / options.size))
 ipcMain.on('main-window-progress-reset', () => MainWindow.getWindow().setProgressBar(-1))
@@ -48,6 +53,18 @@ ipcMain.on('update-window-progress', (event, options) => UpdateWindow.getWindow(
 ipcMain.on('update-window-progress-reset', () => UpdateWindow.getWindow().setProgressBar(-1))
 ipcMain.on('update-window-progress-load', () => UpdateWindow.getWindow().setProgressBar(2))
 
+app.on('ready', () => {
+    OptionWindow.createOptionsWindow();
+});
+
+ipcMain.on('options-window-open', (event) => {
+    OptionWindow.show();
+});
+
+ipcMain.on('options-confirm', (event, data) => {
+    OptionWindow.hide();
+});
+
 ipcMain.handle('path-user-data', () => app.getPath('userData'))
 ipcMain.handle('appData', e => app.getPath('appData'))
 
@@ -55,7 +72,7 @@ ipcMain.handle('Microsoft-window', async (_, client_id) => {
     return await new Microsoft(client_id).getAuth();
 })
 
-app.on('window-all-closed', () => app.quit());
+app.on('window-all-closed', () => { app.quit()});
 
 autoUpdater.autoDownload = false;
 

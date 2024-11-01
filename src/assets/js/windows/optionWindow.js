@@ -2,10 +2,22 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const os = require("os");
 
+let forceClose = false;
 let isDev = process.env.NODE_ENV === 'dev';
-let optionsWindow;
+
+let optionsWindow = undefined;
+
+function destroyWindow() {
+    if (optionsWindow) {
+        forceClose = true;
+
+        optionsWindow.close();
+        optionsWindow = undefined;
+    }
+}
 
 function createOptionsWindow() {
+    console.log("created");
     const iconExtension = os.platform() === "win32" ? "ico" : "png";
 
     optionsWindow = new BrowserWindow({
@@ -22,17 +34,20 @@ function createOptionsWindow() {
         }
     });
 
-    optionsWindow.loadFile(path.join(`${app.getAppPath()}/src/optionPanel.html`));
+    optionsWindow.loadFile(path.join(app.getAppPath() + "/src/optionPanel.html")); // Never change this, its completly fucked up.
 
     optionsWindow.on('close', (event) => {
-        event.preventDefault();
+        if (!forceClose) {
+            event.preventDefault();
+        }
+
         optionsWindow.hide();
     });
 
     optionsWindow.once("ready-to-show", () => {
-        /*if (isDev) {
+        /* if (isDev) {
             optionsWindow.webContents.openDevTools({ mode: 'detach' });
-        }*/
+        } */
     });
 
     optionsWindow.webContents.once('did-finish-load', () => {
@@ -44,18 +59,18 @@ function createOptionsWindow() {
     });
 }
 
-app.on('ready', () => {
-    createOptionsWindow();
-});
-
-ipcMain.on('open-options-panel', (event) => {
+function show() {
     if (optionsWindow) {
         optionsWindow.show();
+    } else {
+        createOptionsWindow();
     }
-});
+}
 
-ipcMain.on('options-confirm', (event, data) => {
+function hide() {
     if (optionsWindow) {
         optionsWindow.hide();
     }
-});
+}
+
+module.exports = { createOptionsWindow, destroyWindow, show, hide };
