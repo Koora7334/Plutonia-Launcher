@@ -47,7 +47,7 @@ playButton.addEventListener('click', async _ => {
 
     try {
         await authWorker.auth(username.value, password.value);
-        setMessage("Authentification réussie.");
+        setMessage("Authentification rÃ©ussie.");
     } catch (error) {
         setErrorMessage(error.message);
         disableFields(false);
