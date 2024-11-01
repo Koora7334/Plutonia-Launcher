@@ -1,7 +1,7 @@
 @import url('./font.css');
 /* Style de la page principale */
 body {
-    font-family: 'LemonMilk-Pro';
+    font-family: 'LemonMilk-Pro', sans-serif;
     width: 761px;
     height: 824px;
     background-image: url('../images/background.png');
@@ -15,7 +15,19 @@ body {
 }
 
 /* Style de la barre de progression, et du texte */
-.progress {
+
+.empty-progress {
+    position: absolute;
+    top: 670px;
+    left: 154px;
+    width: 449px;
+    height: 28px;
+    /* Image de fond */
+    background-image: url('../images/elements/progressbar/progressbar.png');
+    background-size: cover;
+}
+
+.progress-text {
     position: absolute;
     top: 670px;
     left: 154px;
@@ -28,9 +40,16 @@ body {
     font-size: 13px;
     color: white;
     letter-spacing: 0.5px;
+}
+
+.progress {
+    position: absolute;
+    top: 670px;
+    left: 154px;
+    width: 0px;
+    height: 28px;
     /* Image de fond */
-    background-image: url('../images/elements/progressbar/progressbar.png');
-    background-size: cover;
+    background-image: url('../images/elements/progressbar/progressbar_full.png');
 }
 
 /* Style du texte */

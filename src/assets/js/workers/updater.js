@@ -1,69 +1,114 @@
+const EventEmitter = require('events');
+
 const fs = require('fs-extra');
 const axios = require('axios');
 const crypto = require('crypto');
 const path = require('path');
 
-const serverUrl = 'https://assets.plutonia.games'; // URL du serveur
+const serverUrl = 'https://assets.plutonia.games/';
 
-class UpdateWorker {
+const ignoredFiles = [
+    "logs.txt",
+    "waypoints",
+    "resourcepacks",
+    "saves",
+    "options.txt",
+    "optionsof.txt",
+    "usercache.json",
+    "credentials.yml",
+    "shaderpacks",
+    "config",
+    "screenshots",
+    "crash-reports"
+]
+
+class UpdateWorker extends EventEmitter {
 
     async update(appDataPath) {
-        try {
-            // Étape 1: Récupérer les fichiers et leur hash depuis le serveur
-            const response = await axios.get(serverUrl); // Mettez à jour avec le bon chemin pour récupérer la liste
-            const serverFiles = response.data; // On suppose que cela retourne un tableau d'objets
+        console.log("Tentative de récupération des fichiers depuis : " + serverUrl);
 
-            // Étape 2: Vérifier les fichiers locaux
-            for (const file of serverFiles) {
-                const localFilePath = path.join(this.appDataPath, file.path);
+        const response = await axios.get(serverUrl);
+        const serverFiles = response.data;
 
-                // Vérifier si le fichier existe localement
-                if (await fs.pathExists(localFilePath)) {
-                    const localHash = await this.calculateHash(localFilePath);
-
-                    // Comparer le hash local avec celui du serveur
-                    if (localHash !== file.hash) {
-                        console.log(`Fichier obsolète détecté : ${file.path}. Suppression.`);
-                        //await fs.remove(localFilePath); // Supprimer le fichier local obsolète
-                    }
-                } else {
-                    console.log(`Fichier manquant : ${file.path}. Téléchargement...`);
-                    await this.downloadFile(file.url, localFilePath); // Télécharger le fichier manquant
-                }
+        // 1. Vérifier et supprimer les fichiers obsolètes
+        for (const file of serverFiles) {
+            if (!file.path) {
+                console.error("Le chemin du fichier est manquant dans la réponse du serveur :", file);
+                continue;
             }
 
-            console.log("Mise à jour terminée !");
-        } catch (error) {
-            console.error("Erreur lors de la mise à jour :", error);
+            // Vérifier si le fichier est dans la liste des fichiers ignorés
+            if (ignoredFiles.includes(file.path)) {
+                console.log("Fichier ignoré : " + file.path);
+                continue;
+            }
+
+            const localFilePath = path.join(appDataPath, file.path);
+
+            if (await fs.pathExists(localFilePath)) {
+                const localHash = await this.calculateHash(localFilePath);
+
+                if (localHash !== file.hash) {
+                    console.log("Suppression d'un fichier obsolète : " + file.path);
+                    await fs.remove(localFilePath);
+                }
+            }
         }
+
+        // 2. Lister les fichiers manquants
+        let toDownload = [];
+
+        for (const file of serverFiles) {
+            if (!file.path) {
+                console.error("Le chemin du fichier est manquant dans la réponse du serveur :", file);
+                continue;
+            }
+
+            const localFilePath = path.join(appDataPath, file.path);
+
+            if (!await fs.pathExists(localFilePath)) {
+                toDownload.push({ url: file.url, localFilePath });
+                console.log("Fichier manquant : " + file.path);
+            }
+        }
+
+        this.emit('check-completed');
+
+        // 2. Télécharger les fichiers manquants
+        let current = 0;
+
+        for (const file of toDownload) {
+            current += 1;
+
+            console.log("Téléchargement de " + file.localFilePath + "... (" + current + "/" + toDownload.length + ")");
+            this.emit('downloading', { current, total: toDownload.length });
+
+            await this.downloadFile(file.url, file.localFilePath);
+        }
+
+        this.emit('completed');
+        console.log("Mise à jour terminée !");
     }
 
     async calculateHash(filePath) {
-        return new Promise((resolve, reject) => {
-            const hash = crypto.createHash('sha256');
-            const stream = fs.createReadStream(filePath);
-
-            stream.on('data', (data) => hash.update(data));
-            stream.on('end', () => resolve(hash.digest('hex')));
-            stream.on('error', (err) => reject(err));
-        });
+        const hash = crypto.createHash('sha256');
+        const fileBuffer = await fs.readFile(filePath);
+        hash.update(fileBuffer);
+        return hash.digest('hex');
     }
 
     async downloadFile(fileUrl, localFilePath) {
-        const writer = fs.createWriteStream(localFilePath);
+        const dir = path.dirname(localFilePath);
+        await fs.ensureDir(dir);
 
         const response = await axios({
             url: fileUrl,
             method: 'GET',
-            responseType: 'stream',
+            responseType: 'arraybuffer'
         });
 
-        response.data.pipe(writer);
-
-        return new Promise((resolve, reject) => {
-            writer.on('finish', resolve);
-            writer.on('error', reject);
-        });
+        const buffer = Buffer.from(response.data);
+        await fs.writeFile(localFilePath, buffer);
     }
 }
 

@@ -48,9 +48,9 @@ function createOptionsWindow() {
     });
 
     optionsWindow.once("ready-to-show", () => {
-        if (isDev) {
+        /* if (isDev) {
             optionsWindow.webContents.openDevTools({ mode: 'detach' });
-        }
+        } */
     });
 
     /*optionsWindow.webContents.once('did-finish-load', () => {

@@ -2,6 +2,6 @@
 
 @font-face {
     font-family: 'LemonMilk-Pro';
-    font-style: bold;
-    src: url('../fonts/lemonmilk.otf') format('opentype');
+    src: url('../fonts/lemonmilk.woff2') format('woff2');
+    font-display: swap;
 }

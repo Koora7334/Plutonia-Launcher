@@ -11,15 +11,15 @@ const path = require('path');
 const AuthWorker = require('./assets/js/workers/auth.js');
 const authWorker = new AuthWorker();
 
-//const UpdateWorker = require('./assets/js/workers/updater.js');
-//const updateWorker = new UpdateWorker();
+const UpdateWorker = require('./assets/js/workers/updater.js');
+const updateWorker = new UpdateWorker();
 
-async function getPath() {
+async function getDataPath() {
     try {
         const dataPath = await ipcRenderer.invoke('appData');
-        const saveFilePath = path.join(dataPath, 'options.json');
+        const saveFilePath = path.join(dataPath, (os.platform() !== 'darwin' ? '.' : '') + "plutonia");
 
-        return dataPath;
+        return saveFilePath;
     } catch (error) {
         console.error('Erreur lors de la récupération du chemin :', error);
     }
@@ -33,7 +33,9 @@ const playButton = document.querySelector('.play');
 const settingsButton = document.querySelector('.settings');
 
 const registerField = document.querySelector('.register');
+
 const progressBar = document.querySelector('.progress');
+const progressBarText = document.querySelector('.progress-text');
 
 /* Registering listeners */
 closeButton.addEventListener('click', async _ => {
@@ -49,11 +51,6 @@ registerField.addEventListener('click', async _ => {
 });
 
 playButton.addEventListener('click', async _ => {
-
-    getPath().then(path => {
-        console.log(path)
-    });
-
     disableFields(true);
 
     if (username.value === '' || password.value === '') {
@@ -75,18 +72,35 @@ playButton.addEventListener('click', async _ => {
 
     setMessage("Vérification des fichiers...");
 
-    try {
-        await updateWorker.update();
-        setMessage("Fichiers vérifiés.");
-    } catch (error) {
-        setErrorMessage(error.message);
-        disableFields(false);
-        return;
-    }
+    getDataPath().then(launcherPath => updateWorker.update(launcherPath));
 });
 /* Registering listeners */
 
+/* Listen events */
+updateWorker.on('check-completed', () => {
+    setMessage("Téléchargement en cours...");
+});
+
+updateWorker.on('downloading', ({ current, total }) => {
+    setProgress((current / total) * 100);
+    setMessage("Téléchargement en cours... (" + current + "/" + total + ")");
+});
+
+updateWorker.on('completed', () => {
+    setProgress(100);
+    setMessage("Lancement du jeu...");
+});
+/* Listen events */
+
 /* Utils */
+
+function setProgress(percentage) {
+    const maxWidth = 447;
+    const progressBarWidth = (percentage / 100) * maxWidth;
+
+    progressBar.style.width = progressBarWidth + "px";
+}
+
 function disableFields(state) {
     const elements = [username, password, playButton, settingsButton, registerField];
 
@@ -100,7 +114,7 @@ function disableFields(state) {
 }
 
 function setMessage(text) {
-    progressBar.innerHTML = text;
+    progressBarText.innerHTML = text;
 }
 
 function setErrorMessage(text) {
