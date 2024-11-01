@@ -7,10 +7,10 @@ const { app, BrowserWindow, Menu } = require("electron");
 const path = require("path");
 const os = require("os");
 
+const OptionWindow = require("./optionWindow.js");
+
 let isDev = process.env.NODE_ENV === 'dev';
 let mainWindow = undefined;
-
-const OptionWindow = require("./optionWindow.js");
 
 function getWindow() {
     return mainWindow;
@@ -18,7 +18,6 @@ function getWindow() {
 
 function destroyWindow() {
     if (mainWindow) {
-        OptionWindow.destroyWindow();
         app.quit();
         mainWindow = undefined;
     }
@@ -50,19 +49,15 @@ function createWindow() {
     mainWindow.loadFile(path.join(`${app.getAppPath()}/src/launcher.html`));
 
     mainWindow.once('ready-to-show', () => {
-        if (mainWindow) {
-            if (isDev) {
-                mainWindow.webContents.openDevTools({ mode: 'detach' });
-            }
-
-            mainWindow.show();
-            OptionWindow.createOptionsWindow();
+        if (isDev) {
+            mainWindow.webContents.openDevTools({ mode: 'detach' });
         }
+
+        mainWindow.show();
+        OptionWindow.createOptionsWindow();
     });
 
-    mainWindow.on('close', () => {
-        OptionWindow.destroyWindow();
-    });
+    mainWindow.on('close', () => OptionWindow.destroyWindow());
 }
 
-module.exports = { getWindow,createWindow, destroyWindow };
+module.exports = { getWindow, createWindow, destroyWindow };
