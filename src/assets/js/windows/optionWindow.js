@@ -35,7 +35,7 @@ function createOptionsWindow() {
         }
     });
 
-    optionsWindow.loadFile(path.join(app.getAppPath() + "/src/optionPanel.html")); // Never change this, its completly fucked up.
+    optionsWindow.loadFile(path.join(app.getAppPath() + "/src/options.html")); // Never change this, its completly fucked up.
 
     optionsWindow.on('close', (event) => {
         if (!forceClose) {
