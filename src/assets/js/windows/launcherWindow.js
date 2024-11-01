@@ -18,6 +18,7 @@ function getWindow() {
 
 function destroyWindow() {
     if (mainWindow) {
+        OptionWindow.destroyWindow();
         app.quit();
         mainWindow = undefined;
     }
