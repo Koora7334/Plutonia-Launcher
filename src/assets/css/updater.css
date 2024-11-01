@@ -8,8 +8,8 @@ body {
 
     body.dark-theme {
         background-color: #161616;
-        font-family: "LemonMilk", sans-serif;
-        letter-spacing: 0px;
+        font-family: "LemonMilk-Pro", sans-serif;
+        letter-spacing: 1.5px;
         -webkit-user-drag: none;
         user-select: none;
         pointer-events: none;

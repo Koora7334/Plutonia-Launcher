@@ -8,14 +8,14 @@ const os = require('os');
 const launch = new Launch();
 const { ipcRenderer, dialog } = require('electron');
 
-const login = document.querySelector('.login input');
+/*const login = document.querySelector('.login input');
 
 const passeword = document.querySelector('.password input');
 const authCode = document.querySelector('.auth-code input');
 
-let auth = null;
+let auth = null;*/
 
-document.addEventListener('keydown', e => {
+/*document.addEventListener('keydown', e => {
     if (e.ctrlKey && e.shiftKey && e.keyCode == 73 || e.keyCode == 123) {
         ipcRenderer.send('main-window-dev-tools-close');
         ipcRenderer.send('main-window-dev-tools');
@@ -47,10 +47,25 @@ document.querySelector('.btn .play').addEventListener('click', async _ => {
             startGame();
         }
     }
+});*/
+
+
+
+/*document.querySelector('.close').addEventListener('click', () => {
+    ipcRenderer.send('main-window-close');
+});*/
+
+/* Registering listeners */
+document.querySelector('.close').addEventListener('click', async _ => {
+    ipcRenderer.send('main-window-close');
 });
 
-document.querySelector('.close').addEventListener('click', () => {
-    ipcRenderer.send('main-window-close');
+document.querySelector('.settings').addEventListener('click', async _ => {
+    ipcRenderer.send('options-window-open');
+});
+
+document.querySelector('.connect').addEventListener('click', async _ => {
+    ipcRenderer.send('start-connect');
 });
 
 async function startGame() {

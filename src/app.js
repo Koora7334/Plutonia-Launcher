@@ -52,30 +52,15 @@ ipcMain.on('update-window-progress-load', () => UpdateWindow.getWindow().setProg
 ipcMain.handle('path-user-data', () => app.getPath('userData'))
 ipcMain.handle('appData', e => app.getPath('appData'))
 
-ipcMain.on('main-window-maximize', () => {
-    if (MainWindow.getWindow().isMaximized()) {
-        MainWindow.getWindow().unmaximize();
-    } else {
-        MainWindow.getWindow().maximize();
-    }
-})
-
-ipcMain.on('main-window-hide', () => MainWindow.getWindow().hide())
-ipcMain.on('main-window-show', () => MainWindow.getWindow().show())
-
 ipcMain.handle('Microsoft-window', async (_, client_id) => {
     return await new Microsoft(client_id).getAuth();
-})
-
-ipcMain.handle('is-dark-theme', (_, theme) => {
-    if (theme === 'dark') return true
-    if (theme === 'light') return false
-    return nativeTheme.shouldUseDarkColors;
 })
 
 app.on('window-all-closed', () => app.quit());
 
 autoUpdater.autoDownload = false;
+
+ipcMain.on('start-update', () => autoUpdater.downloadUpdate());
 
 ipcMain.handle('update-app', async () => {
     return await new Promise(async (resolve, reject) => {
@@ -88,32 +73,39 @@ ipcMain.handle('update-app', async () => {
             })
         })
     })
-})
-
-autoUpdater.on('update-available', () => {
-    const updateWindow = UpdateWindow.getWindow();
-    if (updateWindow) updateWindow.webContents.send('updateAvailable');
 });
 
-ipcMain.on('start-update', () => {
-    autoUpdater.downloadUpdate();
-})
+/* Updater messaging */
+autoUpdater.on('update-available', () => {
+    const updateWindow = UpdateWindow.getWindow();
+
+    if (updateWindow) {
+        updateWindow.webContents.send('updateAvailable');
+    }
+});
 
 autoUpdater.on('update-not-available', () => {
     const updateWindow = UpdateWindow.getWindow();
-    if (updateWindow) updateWindow.webContents.send('update-not-available');
+
+    if (updateWindow) {
+        updateWindow.webContents.send('update-not-available');
+    }
 });
 
-autoUpdater.on('update-downloaded', () => {
-    autoUpdater.quitAndInstall();
-});
+autoUpdater.on('update-downloaded', () => autoUpdater.quitAndInstall());
 
 autoUpdater.on('download-progress', (progress) => {
     const updateWindow = UpdateWindow.getWindow();
-    if (updateWindow) updateWindow.webContents.send('download-progress', progress);
+
+    if (updateWindow) {
+        updateWindow.webContents.send('download-progress', progress);
+    }
 })
 
 autoUpdater.on('error', (err) => {
     const updateWindow = UpdateWindow.getWindow();
-    if (updateWindow) updateWindow.webContents.send('error', err);
+
+    if (updateWindow) {
+        updateWindow.webContents.send('error', err);
+    }
 });
