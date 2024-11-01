@@ -3,13 +3,11 @@
  * @license CC-BY-NC 4.0 - https://creativecommons.org/licenses/by-nc/4.0
  */
 
+const os = require('os');
+const { ipcRenderer, dialog } = require('electron');
+
 const AuthWorker = require('./assets/js/workers/auth.js');
 const authWorker = new AuthWorker();
-
-const { Launch } = require('minecraft-java-core');
-const os = require('os');
-const launch = new Launch();
-const { ipcRenderer, dialog } = require('electron');
 
 const username = document.querySelector('.username input');
 const password = document.querySelector('.password input');

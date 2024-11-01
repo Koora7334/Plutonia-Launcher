@@ -36,8 +36,7 @@ if (!app.requestSingleInstanceLock()) {
 } else {
     app.whenReady().then(() => {
         if (isDev) {
-            openMainWindow();
-            return;
+            return openMainWindow();
         }
 
         UpdateWindow.createWindow()

@@ -2,10 +2,10 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const os = require("os");
 
+let optionsWindow = undefined;
+
 let forceClose = false;
 let isDev = process.env.NODE_ENV === 'dev';
-
-let optionsWindow = undefined;
 
 function destroyWindow() {
     if (optionsWindow) {
