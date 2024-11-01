@@ -47,7 +47,7 @@ ipcMain.on('main-window-progress-reset', () => MainWindow.getWindow().setProgres
 ipcMain.on('main-window-progress-load', () => MainWindow.getWindow().setProgressBar(2))
 ipcMain.on('main-window-minimize', () => MainWindow.getWindow().minimize())
 
-ipcMain.on('update-window-close', () => UpdateWindow.destroyWindow())
+ipcMain.on('update-window-close', () => { UpdateWindow.destroyWindow(); OptionWindow.destroyWindow(); })
 ipcMain.on('update-window-dev-tools', () => UpdateWindow.getWindow().webContents.openDevTools({ mode: 'detach' }))
 ipcMain.on('update-window-progress', (event, options) => UpdateWindow.getWindow().setProgressBar(options.progress / options.size))
 ipcMain.on('update-window-progress-reset', () => UpdateWindow.getWindow().setProgressBar(-1))
