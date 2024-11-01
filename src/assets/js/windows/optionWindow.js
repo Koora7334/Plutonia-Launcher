@@ -47,11 +47,11 @@ function createOptionsWindow() {
         }
     });
 
-    /*optionsWindow.once("ready-to-show", () => {
+    optionsWindow.once("ready-to-show", () => {
         if (isDev) {
             optionsWindow.webContents.openDevTools({ mode: 'detach' });
         }
-    });*/
+    });
 
     /*optionsWindow.webContents.once('did-finish-load', () => {
         optionsWindow.webContents.send('load-config', {
@@ -70,7 +70,7 @@ ipcMain.on('options-window-open', (event) => {
     }
 });
 
-ipcMain.on('options-confirm', (event, data) => {
+ipcMain.on('options-window-confirm', (event, data) => {
     if (optionsWindow) {
         optionsWindow.hide();
     }

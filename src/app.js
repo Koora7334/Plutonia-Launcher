@@ -50,21 +50,14 @@ ipcMain.on('main-window-open', () => {
 });
 
 ipcMain.on('main-window-close', () => {
-    //OptionWindow.destroyWindow();
     MainWindow.destroyWindow();
-
 });
 
 ipcMain.on('update-window-close', () => UpdateWindow.destroyWindow());
-
-//ipcMain.on('options-window-open', (event) => OptionWindow.show());
-//ipcMain.on('options-confirm', (event, data) => OptionWindow.hide());
-
 /* Listeners */
 
 /* Open the main window */
 function openMainWindow() {
-    //OptionWindow.createOptionsWindow();
     MainWindow.createWindow();
 }
 
