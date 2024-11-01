@@ -99,7 +99,8 @@ class Splash {
         let countdown = 10;
 
         const intervalId = setInterval(() => {
-            this.setMessage(message + "<br>Fermeture dans " + countdown-- + " seconde" + (countdown > 1 ? "s" : "") + "...</br>");
+            this.setMessage(message + "<br>Fermeture dans " + countdown + " seconde" + (countdown > 1 ? "s" : "") + "...</br>");
+            countdown--;
 
             if (countdown < 0) {
                 clearInterval(intervalId);

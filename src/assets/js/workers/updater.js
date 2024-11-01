@@ -34,7 +34,7 @@ class UpdateWorker extends EventEmitter {
         for (const file of serverFiles) {
             if (!file.path) {
                 console.error("Le chemin du fichier est manquant dans la réponse du serveur :", file);
-                throw new Error("Fichier manquant sur le serveur.");
+                throw new Error("Fichiers manquants sur le serveur.");
                 return;
             }
 
@@ -62,7 +62,7 @@ class UpdateWorker extends EventEmitter {
         for (const file of serverFiles) {
             if (!file.path) {
                 console.error("Le chemin du fichier est manquant dans la réponse du serveur :", file);
-                throw new Error("Fichier manquant sur le serveur.");
+                throw new Error("Fichiers manquants sur le serveur.");
                 return;
             }
 
