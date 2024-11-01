@@ -72,7 +72,15 @@ playButton.addEventListener('click', async _ => {
 
     setMessage("Vérification des fichiers...");
 
-    getDataPath().then(launcherPath => updateWorker.update(launcherPath));
+    getDataPath().then(launcherPath => {
+        try {
+            updateWorker.update(launcherPath);
+        } catch (error) {
+            setErrorMessage(error.message);
+            disableFields(false);
+            return;
+        }
+    });
 });
 /* Registering listeners */
 
@@ -93,7 +101,6 @@ updateWorker.on('completed', () => {
 /* Listen events */
 
 /* Utils */
-
 function setProgress(percentage) {
     const maxWidth = 447;
     const progressBarWidth = (percentage / 100) * maxWidth;
