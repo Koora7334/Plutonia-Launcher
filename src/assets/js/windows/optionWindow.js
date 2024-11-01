@@ -17,7 +17,6 @@ function destroyWindow() {
 }
 
 function createOptionsWindow() {
-    console.log("created");
     const iconExtension = os.platform() === "win32" ? "ico" : "png";
 
     optionsWindow = new BrowserWindow({

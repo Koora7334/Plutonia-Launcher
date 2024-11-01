@@ -50,6 +50,11 @@ body {
         cursor: pointer;
     }
 
+    .register.disabled {
+        pointer-events: none;
+        text-decoration: none;
+    }
+
 /* Style du bouton de fermeture */
 .close {
     position: absolute;
@@ -83,6 +88,11 @@ body {
         background-position: 0 -60px;
     }
 
+    .play.disabled {
+        pointer-events: none;
+        background-position: 0 -60px;
+    }
+
 /* Style du bouton des options */
 .settings {
     position: absolute;
@@ -96,6 +106,11 @@ body {
 }
 
     .settings:hover {
+        background-position: 0 -50px;
+    }
+
+    .settings.disabled {
+        pointer-events: none;
         background-position: 0 -50px;
     }
 
@@ -117,6 +132,10 @@ body {
         font-size: 23px;
         font-family: 'LemonMilk-Pro';
         -webkit-text-security: none;
+    }
+
+    .username input.disabled, .password input.disabled {
+        pointer-events: none;
     }
 
         .password input:valid {
