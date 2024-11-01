@@ -12,12 +12,11 @@ const fs = require('fs');
 
 const UpdateWindow = require("./assets/js/windows/updateWindow.js");
 const MainWindow = require("./assets/js/windows/launcherWindow.js");
-
 const OptionWindow = require("./assets/js/windows/optionWindow.js");
 
-let dev = process.env.NODE_ENV === 'dev';
+let isDev = process.env.NODE_ENV === 'dev';
 
-if (dev) {
+if (isDev) {
     let appPath = path.resolve('./data/Launcher').replace(/\\/g, '/');
     let appdata = path.resolve('./data').replace(/\\/g, '/');
     if (!fs.existsSync(appPath)) fs.mkdirSync(appPath, { recursive: true });
@@ -28,7 +27,7 @@ if (dev) {
 
 if (!app.requestSingleInstanceLock()) app.quit();
 else app.whenReady().then(() => {
-    if (dev) return MainWindow.createWindow()
+    if (isDev) return MainWindow.createWindow()
     UpdateWindow.createWindow()
 });
 
@@ -36,7 +35,7 @@ else app.whenReady().then(() => {
 ipcMain.on('main-window-open', () => MainWindow.createWindow())
 ipcMain.on('main-window-dev-tools', () => MainWindow.getWindow().webContents.openDevTools({ mode: 'detach' }))
 ipcMain.on('main-window-dev-tools-close', () => MainWindow.getWindow().webContents.closeDevTools())
-ipcMain.on('main-window-close', () => MainWindow.destroyWindow())
+ipcMain.on('main-window-close', () => app.quit())
 ipcMain.on('main-window-reload', () => MainWindow.getWindow().reload())
 ipcMain.on('main-window-progress', (event, options) => MainWindow.getWindow().setProgressBar(options.progress / options.size))
 ipcMain.on('main-window-progress-reset', () => MainWindow.getWindow().setProgressBar(-1))
