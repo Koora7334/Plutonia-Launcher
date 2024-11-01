@@ -43,6 +43,7 @@ function createWindow() {
     });
 
     Menu.setApplicationMenu(null);
+
     updateWindow.setMenuBarVisibility(false);
     updateWindow.loadFile(path.join(app.getAppPath() + "/src/updater.html")); // Never change this, its completly fucked up.
 

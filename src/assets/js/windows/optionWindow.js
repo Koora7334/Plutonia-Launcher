@@ -17,6 +17,8 @@ function destroyWindow() {
 }
 
 function createOptionsWindow() {
+    destroyWindow();
+
     const iconExtension = os.platform() === "win32" ? "ico" : "png";
 
     optionsWindow = new BrowserWindow({
@@ -40,36 +42,38 @@ function createOptionsWindow() {
             event.preventDefault();
         }
 
-        optionsWindow.hide();
+        if (optionsWindow) {
+            optionsWindow.hide();
+        }
     });
 
-    optionsWindow.once("ready-to-show", () => {
-        /* if (isDev) {
+    /*optionsWindow.once("ready-to-show", () => {
+        if (isDev) {
             optionsWindow.webContents.openDevTools({ mode: 'detach' });
-        } */
-    });
+        }
+    });*/
 
-    optionsWindow.webContents.once('did-finish-load', () => {
+    /*optionsWindow.webContents.once('did-finish-load', () => {
         optionsWindow.webContents.send('load-config', {
             ram: "2048",
             tabbychat: true,
             voiceChat: false,
         });
-    });
+    });*/
 }
 
-function show() {
+ipcMain.on('options-window-open', (event) => {
     if (optionsWindow) {
         optionsWindow.show();
     } else {
         createOptionsWindow();
     }
-}
+});
 
-function hide() {
+ipcMain.on('options-confirm', (event, data) => {
     if (optionsWindow) {
         optionsWindow.hide();
     }
-}
+});
 
-module.exports = { createOptionsWindow, destroyWindow, show, hide };
+module.exports = { createOptionsWindow, destroyWindow };

@@ -12,68 +12,68 @@ const fs = require('fs');
 
 const UpdateWindow = require("./assets/js/windows/updateWindow.js");
 const MainWindow = require("./assets/js/windows/launcherWindow.js");
-const OptionWindow = require("./assets/js/windows/optionWindow.js");
 
 let isDev = process.env.NODE_ENV === 'dev';
 
 if (isDev) {
     let appPath = path.resolve('./data/Launcher').replace(/\\/g, '/');
     let appdata = path.resolve('./data').replace(/\\/g, '/');
-    if (!fs.existsSync(appPath)) fs.mkdirSync(appPath, { recursive: true });
-    if (!fs.existsSync(appdata)) fs.mkdirSync(appdata, { recursive: true });
+
+    if (!fs.existsSync(appPath)) {
+        fs.mkdirSync(appPath, { recursive: true });
+    }
+
+    if (!fs.existsSync(appdata)) {
+        fs.mkdirSync(appdata, { recursive: true });
+    }
+
     app.setPath('userData', appPath);
     app.setPath('appData', appdata)
 }
 
-if (!app.requestSingleInstanceLock()) app.quit();
-else app.whenReady().then(() => {
-    if (isDev) return MainWindow.createWindow()
-    UpdateWindow.createWindow()
+if (!app.requestSingleInstanceLock()) {
+    app.quit();
+} else {
+    app.whenReady().then(() => {
+        if (isDev) {
+            openMainWindow();
+            return;
+        }
+
+        UpdateWindow.createWindow()
+    });
+}
+
+/* Listeners */
+ipcMain.on('main-window-open', () => {
+    openMainWindow();
 });
-
-
-ipcMain.on('main-window-open', () => MainWindow.createWindow())
-ipcMain.on('main-window-dev-tools', () => MainWindow.getWindow().webContents.openDevTools({ mode: 'detach' }))
-ipcMain.on('main-window-dev-tools-close', () => MainWindow.getWindow().webContents.closeDevTools())
 
 ipcMain.on('main-window-close', () => {
+    //OptionWindow.destroyWindow();
     MainWindow.destroyWindow();
-    OptionWindow.destroyWindow();
-})
 
-ipcMain.on('main-window-reload', () => MainWindow.getWindow().reload())
-ipcMain.on('main-window-progress', (event, options) => MainWindow.getWindow().setProgressBar(options.progress / options.size))
-ipcMain.on('main-window-progress-reset', () => MainWindow.getWindow().setProgressBar(-1))
-ipcMain.on('main-window-progress-load', () => MainWindow.getWindow().setProgressBar(2))
-ipcMain.on('main-window-minimize', () => MainWindow.getWindow().minimize())
-
-ipcMain.on('update-window-close', () => { UpdateWindow.destroyWindow(); OptionWindow.destroyWindow(); })
-ipcMain.on('update-window-dev-tools', () => UpdateWindow.getWindow().webContents.openDevTools({ mode: 'detach' }))
-ipcMain.on('update-window-progress', (event, options) => UpdateWindow.getWindow().setProgressBar(options.progress / options.size))
-ipcMain.on('update-window-progress-reset', () => UpdateWindow.getWindow().setProgressBar(-1))
-ipcMain.on('update-window-progress-load', () => UpdateWindow.getWindow().setProgressBar(2))
-
-app.on('ready', () => {
-    OptionWindow.createOptionsWindow();
 });
 
-ipcMain.on('options-window-open', (event) => {
-    OptionWindow.show();
-});
+ipcMain.on('update-window-close', () => UpdateWindow.destroyWindow());
 
-ipcMain.on('options-confirm', (event, data) => {
-    OptionWindow.hide();
-});
+//ipcMain.on('options-window-open', (event) => OptionWindow.show());
+//ipcMain.on('options-confirm', (event, data) => OptionWindow.hide());
 
-ipcMain.handle('path-user-data', () => app.getPath('userData'))
-ipcMain.handle('appData', e => app.getPath('appData'))
+/* Listeners */
 
-ipcMain.handle('Microsoft-window', async (_, client_id) => {
-    return await new Microsoft(client_id).getAuth();
-})
+/* Open the main window */
+function openMainWindow() {
+    //OptionWindow.createOptionsWindow();
+    MainWindow.createWindow();
+}
 
-app.on('window-all-closed', () => { app.quit()});
+/* Directories */
+ipcMain.handle('path-user-data', () => app.getPath('userData'));
+ipcMain.handle('appData', e => app.getPath('appData'));
+/* Directories */
 
+/* Updater listeners */
 autoUpdater.autoDownload = false;
 
 ipcMain.on('start-update', () => autoUpdater.downloadUpdate());
@@ -90,6 +90,7 @@ ipcMain.handle('update-app', async () => {
         })
     })
 });
+/* Updater listeners */
 
 /* Updater messaging */
 autoUpdater.on('update-available', () => {
@@ -125,3 +126,7 @@ autoUpdater.on('error', (err) => {
         updateWindow.webContents.send('error', err);
     }
 });
+/* Updater messaging */
+
+/* App work */
+app.on('window-all-closed', () => app.quit());

@@ -6,49 +6,62 @@
 const { app, BrowserWindow, Menu } = require("electron");
 const path = require("path");
 const os = require("os");
-const pkg = require("../../../../package.json");
-let dev = process.env.NODE_ENV === 'dev';
+
+let isDev = process.env.NODE_ENV === 'dev';
 let mainWindow = undefined;
+
+const OptionWindow = require("./optionWindow.js");
 
 function getWindow() {
     return mainWindow;
 }
 
 function destroyWindow() {
-    if (!mainWindow) return;
-    app.quit();
-    mainWindow = undefined;
+    if (mainWindow) {
+        app.quit();
+        mainWindow = undefined;
+    }
 }
 
 function createWindow() {
     destroyWindow();
+
+    const iconExtension = os.platform() === "win32" ? "ico" : "png";
+
     mainWindow = new BrowserWindow({
-        title: pkg.preductname,
+        title: "Plutonia - Launcher",
         width: 761,
         height: 824,
         resizable: false,
-        icon: `./src/assets/images/icon.${os.platform() === "win32" ? "ico" : "png"}`,
+        icon: "./src/assets/images/icon." + iconExtension,
         frame: false,
         show: false,
         transparent: true,
         webPreferences: {
             contextIsolation: false,
             nodeIntegration: true
-        },
+        }
     });
+
     Menu.setApplicationMenu(null);
+
     mainWindow.setMenuBarVisibility(false);
     mainWindow.loadFile(path.join(`${app.getAppPath()}/src/launcher.html`));
+
     mainWindow.once('ready-to-show', () => {
         if (mainWindow) {
-            if (dev) mainWindow.webContents.openDevTools({ mode: 'detach' })
-            mainWindow.show()
+            if (isDev) {
+                mainWindow.webContents.openDevTools({ mode: 'detach' });
+            }
+
+            mainWindow.show();
+            OptionWindow.createOptionsWindow();
         }
+    });
+
+    mainWindow.on('close', () => {
+        OptionWindow.destroyWindow();
     });
 }
 
-module.exports = {
-    getWindow,
-    createWindow,
-    destroyWindow,
-};
+module.exports = { getWindow,createWindow, destroyWindow };
