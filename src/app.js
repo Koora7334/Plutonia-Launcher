@@ -17,7 +17,7 @@ let isDev = process.env.NODE_ENV === 'dev';
 
 if (isDev) {
     let appPath = path.resolve('./data/Launcher').replace(/\\/g, '/');
-    let appdata = path.resolve('./data').replace(/\\/g, '/');
+    let appdata = path.resolve('./data/appdata').replace(/\\/g, '/');
 
     if (!fs.existsSync(appPath)) {
         fs.mkdirSync(appPath, { recursive: true });

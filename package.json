@@ -10,6 +10,7 @@
         "icon": "node build.js --icon=https://img.plutonia-mc.fr/iconLauncher.png"
     },
     "dependencies": {
+        "axios": "^1.7.7",
         "electron-updater": "^6.3.9",
         "minecraft-java-core": "file:./minecraft-java-core",
         "node-fetch": "^2.7.0"

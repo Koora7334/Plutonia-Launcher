@@ -3,11 +3,27 @@
  * @license CC-BY-NC 4.0 - https://creativecommons.org/licenses/by-nc/4.0
  */
 
-const os = require('os');
 const { ipcRenderer, dialog } = require('electron');
+
+const os = require('os');
+const path = require('path');
 
 const AuthWorker = require('./assets/js/workers/auth.js');
 const authWorker = new AuthWorker();
+
+//const UpdateWorker = require('./assets/js/workers/updater.js');
+//const updateWorker = new UpdateWorker();
+
+async function getPath() {
+    try {
+        const dataPath = await ipcRenderer.invoke('appData');
+        const saveFilePath = path.join(dataPath, 'options.json');
+
+        return dataPath;
+    } catch (error) {
+        console.error('Erreur lors de la récupération du chemin :', error);
+    }
+}
 
 const username = document.querySelector('.username input');
 const password = document.querySelector('.password input');
@@ -33,6 +49,11 @@ registerField.addEventListener('click', async _ => {
 });
 
 playButton.addEventListener('click', async _ => {
+
+    getPath().then(path => {
+        console.log(path)
+    });
+
     disableFields(true);
 
     if (username.value === '' || password.value === '') {
@@ -49,6 +70,18 @@ playButton.addEventListener('click', async _ => {
     } catch (error) {
         setErrorMessage(error.message);
         disableFields(false);
+        return;
+    }
+
+    setMessage("Vérification des fichiers...");
+
+    try {
+        await updateWorker.update();
+        setMessage("Fichiers vérifiés.");
+    } catch (error) {
+        setErrorMessage(error.message);
+        disableFields(false);
+        return;
     }
 });
 /* Registering listeners */
