@@ -27,7 +27,11 @@ class AuthWorker {
             const session = jsonResponse.session;
             const uuid = jsonResponse.uuid;
 
-            return username + ";" + session + ";" + uuid;
+            return {
+                name: username,
+                token: session,
+                id: uuid
+            }
         }
 
         if (status === '400') {

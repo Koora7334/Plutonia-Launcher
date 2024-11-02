@@ -7,20 +7,7 @@ const path = require('path');
 
 const serverUrl = 'https://assets.plutonia.games/';
 
-const ignoredFiles = [
-    "logs.txt",
-    "waypoints",
-    "resourcepacks",
-    "saves",
-    "options.txt",
-    "optionsof.txt",
-    "usercache.json",
-    "credentials.yml",
-    "shaderpacks",
-    "config",
-    "screenshots",
-    "crash-reports"
-]
+const ignoredFiles = []
 
 class UpdateWorker extends EventEmitter {
 
@@ -38,7 +25,7 @@ class UpdateWorker extends EventEmitter {
                 return;
             }
 
-            // Vérifier si le fichier est dans la liste des fichiers ignorés
+            // Vérifier si le fichier à vérifier est dans la liste des fichiers ignorés
             if (ignoredFiles.includes(file.path)) {
                 console.log("Fichier ignoré : " + file.path);
                 continue;

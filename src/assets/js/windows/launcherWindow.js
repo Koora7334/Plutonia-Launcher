@@ -50,9 +50,9 @@ function createWindow() {
 
     mainWindow.once('ready-to-show', () => {
         if (mainWindow) {
-            //if (isDev) {
+            if (isDev) {
                 mainWindow.webContents.openDevTools({ mode: 'detach' });
-            //}
+            }
 
             mainWindow.show();
             OptionWindow.createOptionsWindow();

@@ -11,8 +11,11 @@ const path = require('path');
 const AuthWorker = require('./assets/js/workers/auth.js');
 const authWorker = new AuthWorker();
 
-const UpdateWorker = require('./assets/js/workers/updater.js');
+const UpdateWorker = require('./assets/js/workers/update.js');
 const updateWorker = new UpdateWorker();
+
+const LaunchWorker = require('./assets/js/workers/launch.js');
+const launchWorker = new LaunchWorker();
 
 async function getDataPath() {
     try {
@@ -69,7 +72,9 @@ playButton.addEventListener('click', async _ => {
     setMessage("Authentification en cours...");
 
     try {
-        await authWorker.auth(username.value, password.value);
+        const result = await authWorker.auth(username.value, password.value);
+
+        console.log(result);
         setMessage("Authentification réussie.");
     } catch (error) {
         setErrorMessage(error.message);
@@ -104,6 +109,8 @@ updateWorker.on('downloading', ({ current, total }) => {
 updateWorker.on('completed', () => {
     setProgress(100);
     setMessage("Lancement du jeu...");
+
+    launchWorker.launch();
 });
 /* Listen events */
 
