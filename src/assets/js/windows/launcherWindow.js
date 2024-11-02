@@ -49,12 +49,14 @@ function createWindow() {
     mainWindow.loadFile(path.join(`${app.getAppPath()}/src/launcher.html`));
 
     mainWindow.once('ready-to-show', () => {
-        if (isDev) {
-            mainWindow.webContents.openDevTools({ mode: 'detach' });
-        }
+        if (mainWindow) {
+            //if (isDev) {
+                mainWindow.webContents.openDevTools({ mode: 'detach' });
+            //}
 
-        mainWindow.show();
-        OptionWindow.createOptionsWindow();
+            mainWindow.show();
+            OptionWindow.createOptionsWindow();
+        }
     });
 
     mainWindow.on('close', () => OptionWindow.destroyWindow());
