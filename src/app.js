@@ -8,7 +8,7 @@ const { Microsoft } = require('minecraft-java-core');
 const { autoUpdater } = require('electron-updater')
 
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs-extra');
 
 const UpdateWindow = require("./assets/js/windows/updateWindow.js");
 const MainWindow = require("./assets/js/windows/launcherWindow.js");

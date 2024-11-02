@@ -1,6 +1,6 @@
 const { ipcRenderer, ipcMain, app } = require('electron');
 
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 
 async function getSaveFilePath() {
